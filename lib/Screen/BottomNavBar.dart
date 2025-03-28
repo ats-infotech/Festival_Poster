@@ -14,6 +14,7 @@ import 'package:photo_frame/Screen/PrivacyPolicy.dart';
 import 'package:photo_frame/Screen/Templates.dart';
 import 'package:photo_frame/Screen/saveImageShow.dart';
 
+
 class BottomNavBarBar extends StatefulWidget {
   const BottomNavBarBar({super.key});
 
