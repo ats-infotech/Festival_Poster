@@ -865,6 +865,7 @@ class _EditVisitingCardState extends State<EditVisitingCard> {
                   setState(() {
                     isFrontTap = true;
                     isBackTap = false;
+
                     editController.backImage.value = null;
                     editController.frontImage.value = null;
                     editController.selectedFontFamily.value = "Poppins";
@@ -1086,6 +1087,9 @@ class _EditVisitingCardState extends State<EditVisitingCard> {
         onWillPop: () async {
           isFrontTap = true;
           isBackTap = false;
+          isFunctionTap = false;
+          isImageTap = false;
+          isQRTap = false;
           editController.backImage.value = null;
           editController.frontImage.value = null;
           editController.selectedFontFamily.value = "Poppins";
@@ -2083,7 +2087,7 @@ class _EditVisitingCardState extends State<EditVisitingCard> {
                   child: GestureDetector(
                     onTap: () {
                       qrPickLogo();
-                    },  
+                    },
                     child: const Icon(Icons.image),
                   ),
                 ),

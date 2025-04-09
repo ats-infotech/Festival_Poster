@@ -142,29 +142,7 @@ class _SpecificPosterState extends State<SpecificPoster> {
       appBar: AppBar(
         backgroundColor: kPrimeryColor,
         title: Text(
-          selectedName == "Diwali"
-              ? "Diwali"
-              : selectedName == "Raksha Bandhan"
-                  ? "Raksha Bandhan"
-                  : selectedName == "Independence"
-                      ? "Independence Day"
-                      : selectedName == "Mother Day"
-                          ? "Mother Day"
-                          : selectedName == "Ganesh Chaturthi"
-                              ? "Ganesh Chaturthi"
-                              : selectedName == "Holi"
-                                  ? "Holi"
-                                  : selectedName == "Environment Day"
-                                      ? "Environment Day"
-                                      : selectedName == "Father Day"
-                                          ? "Father Day"
-                                          : selectedName == "Valentines"
-                                              ? "Valentine Day"
-                                              : selectedName == "Republic Day"
-                                                  ? "Republic Day"
-                                                  : selectedName == "Rath Yatra"
-                                                      ? "Rath Yatra"
-                                                      : "",
+          selectedName ?? "",
           style: GoogleFonts.poppins(
             fontWeight: FontWeight.w700,
             fontSize: 15,
@@ -182,7 +160,7 @@ class _SpecificPosterState extends State<SpecificPoster> {
       body: WillPopScope(
         onWillPop: () async {
           return true;
-        },
+        },    
         child: Container(
           margin: const EdgeInsets.only(bottom: 0, top: 10),
           child: LiveGrid.options(
@@ -235,19 +213,22 @@ class _SpecificPosterState extends State<SpecificPoster> {
                           child: GestureDetector(
                             onTap: () async {
                               templateName = specificList[index]["title"];
+                              templateSearchName = specificList[index]["searchText"];
                               print("----------- ${templateName}");
                               reviewCount(context);
                               await imageDialog(
                                 context,
                                 index,
-                                
+                                templateName: specificList[index]["searchText"],
                               );
                               cropImage(index);
                             },
                             child: Container(
-                              margin: const EdgeInsets.only(top: 15),
+                              margin: const EdgeInsets.only(
+                                  top: 15, left: 10, right: 10),
                               child: Image.asset(
                                 specificList[index]["image"],
+                                fit: BoxFit.fill,
                               ),
                             ),
                           ),

@@ -5,6 +5,7 @@ import 'package:photo_frame/Contstant/CommonMethod.dart';
 import 'package:photo_frame/Screen/EditVisitingCard.dart';
 import 'package:photo_frame/Screen/HomePage.dart';
 import 'package:photo_frame/Screen/Templates.dart';
+import 'package:photo_frame/service/firebase_analytics_service.dart';
 import 'package:shimmer/shimmer.dart';
 
 class BrandingPage extends StatefulWidget {
@@ -44,6 +45,8 @@ class _BrandingPageState extends State<BrandingPage> {
                         child: const Templates(scrollPosition: 320),
                       ),
                     );
+                      FirebaseAnalyticsService.instance.logEvent(
+                            name: 'view_all', parameters: {'name': 'All'});
                   },
                   isLoading: isLoadingSkeleton,
                 ),
@@ -75,6 +78,8 @@ class _BrandingPageState extends State<BrandingPage> {
                         : GestureDetector(
                             onTap: () {
                               templateName = visitingCardList[index]["title"];
+                              templateSearchName = 
+ visitingCardList[index]["searchText"];
                               print(
                                   " ---------- Template Name -------- ${templateName}");
                               reviewCount(context);
@@ -124,6 +129,8 @@ class _BrandingPageState extends State<BrandingPage> {
                         child: const Templates(scrollPosition: 320),
                       ),
                     );
+                      FirebaseAnalyticsService.instance.logEvent(
+                            name: 'view_all', parameters: {'name': 'Transparent Visiting Card'});
                   },
                   isLoading: isLoadingSkeleton,
                 ),
@@ -155,6 +162,7 @@ class _BrandingPageState extends State<BrandingPage> {
                         : GestureDetector(
                             onTap: () {
                               templateName = visitingCardList[index]["title"];
+                              templateSearchName = visitingCardList[index]["searchText"];
                               print(
                                   " ---------- Template Name -------- ${templateName}");
                               reviewCount(context);
@@ -204,6 +212,8 @@ class _BrandingPageState extends State<BrandingPage> {
                         child: const Templates(scrollPosition: 320),
                       ),
                     );
+                      FirebaseAnalyticsService.instance.logEvent(
+                            name: 'view_all', parameters: {'name': 'Premium Visiting Card'});
                   },
                   isLoading: isLoadingSkeleton,
                 ),
@@ -235,6 +245,7 @@ class _BrandingPageState extends State<BrandingPage> {
                         : GestureDetector(
                             onTap: () {
                               templateName = visitingCardList[index]["title"];
+templateSearchName = visitingCardList[index]["searchText"];
                               print(
                                   " ---------- Template Name -------- ${templateName}");
                               reviewCount(context);
@@ -284,6 +295,8 @@ class _BrandingPageState extends State<BrandingPage> {
                         child: const Templates(scrollPosition: 320),
                       ),
                     );
+                      FirebaseAnalyticsService.instance.logEvent(
+                            name: 'view_all', parameters: {'name': 'Folded Visiting Cards'});
                   },
                   isLoading: isLoadingSkeleton,
                 ),
@@ -315,6 +328,7 @@ class _BrandingPageState extends State<BrandingPage> {
                         : GestureDetector(
                             onTap: () {
                               templateName = visitingCardList[index]["title"];
+                              templateSearchName = visitingCardList[index]["searchText"];
                               print(
                                   " ---------- Template Name -------- ${templateName}");
                               reviewCount(context);
@@ -364,6 +378,8 @@ class _BrandingPageState extends State<BrandingPage> {
                         child: const Templates(scrollPosition: 320),
                       ),
                     );
+                      FirebaseAnalyticsService.instance.logEvent(
+                            name: 'view_all', parameters: {'name': 'Photographic Visiting Cards'});
                   },
                   isLoading: isLoadingSkeleton,
                 ),
@@ -395,6 +411,7 @@ class _BrandingPageState extends State<BrandingPage> {
                         : GestureDetector(
                             onTap: () {
                               templateName = visitingCardList[index]["title"];
+                              templateSearchName = visitingCardList[index]["searchText"];
                               print(
                                   " ---------- Template Name -------- ${templateName}");
                               reviewCount(context);

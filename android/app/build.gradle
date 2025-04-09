@@ -1,5 +1,6 @@
 plugins {
     id "com.android.application"
+    id 'com.google.gms.google-services'
     id "kotlin-android"
     id "dev.flutter.flutter-gradle-plugin"
 }
@@ -14,7 +15,7 @@ if (localPropertiesFile.exists()) {
 
 def flutterVersionCode = localProperties.getProperty('flutter.versionCode')
 if (flutterVersionCode == null) {
-    flutterVersionCode = 18
+    flutterVersionCode = 22
 }
 
 def flutterVersionName = localProperties.getProperty('flutter.versionName')
@@ -76,4 +77,8 @@ flutter {
     source '../..'
 }
 
-dependencies {}
+dependencies {
+    implementation("com.google.firebase:firebase-analytics")
+}
+
+apply plugin: 'com.google.gms.google-services'

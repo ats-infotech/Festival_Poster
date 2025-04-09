@@ -1,162 +1,48 @@
 [
   {
-    "image": "assets/images/independence_1-tem.png",
-    "image_2": "assets/images/independence_1.png",
-    "searchText": "Independence Day",
-    "title": "Patriotic Day",
-    "type": "Post"
+    "image": "assets/images/eid_2-tem.png",
+    "image_2": "assets/images/eid_2.png",
+    "searchText": "Eid",
+    "title": "Festivals Event"
   },
   {
-    "image": "assets/images/holi_2-tem.png",
-    "image_2": "assets/images/holi_2.png",
-    "searchText": "Holi",
-    "title": "Festivals Event",
-    "type": "Post"
+    "image": "assets/images/eid_1-tem.png",
+    "image_2": "assets/images/eid_1.png",
+    "searchText": "Eid",
+    "title": "Festivals Event"
   },
   {
-    "image": "assets/images/motherDay_1-tem.png",
-    "image_2": "assets/images/motherDay_1.png",
-    "searchText": "Mother Day",
-    "title": "Special Days",
-    "type": "Post"
-  },
-  {
-    "image": "assets/images/enviroment_1-tem.png",
-    "image_2": "assets/images/environment_1.png",
-    "searchText": "Environment Day",
-    "title": "Special Days",
-    "type": "Post"
-  },
-  {
-    "image": "assets/images/newYear_1-tem.png",
-    "image_2": "assets/images/newYear_1.png",
-    "searchText": "Happy New Year",
-    "title": "Festivals Event",
-    "type": "Post"
-  },
-  {
-    "image": "assets/images/janmashatmi_2-tem.png",
-    "image_2": "assets/images/janmashatmi_2.png",
-    "searchText": "Janmashtami",
-    "title": "Festivals Event",
-    "type": "Post"
-  },
-  {
-    "image": "assets/images/valentine_1-tem.png",
-    "image_2": "assets/images/valentine_1.png",
-    "searchText": "Valentine Day",
-    "title": "Special Days",
-    "type": "Post"
-  },
-  {
-    "image": "assets/images/independence_2-tem.png",
-    "image_2": "assets/images/independence_2.png",
-    "searchText": "Independence Day",
-    "title": "Patriotic Day",
-    "type": "Post"
-  },
-  {
-    "image": "assets/images/independence_3-tem.png",
-    "image_2": "assets/images/independence_3.png",
-    "searchText": "Independence Day",
-    "title": "Patriotic Day",
-    "type": "Post"
-  },
-  {
-    "image": "assets/images/fatherDay_1-tem.png",
-    "image_2": "assets/images/fatherDay_1.png",
-    "searchText": "Father Day",
-    "title": "Special Days",
-    "type": "Post"
-  },
-  {
-    "image": "assets/images/independence_4-tem.png",
-    "image_2": "assets/images/independence_4.png",
-    "searchText": "Independence Day",
-    "title": "Patriotic Day",
-    "type": "Post"
-  },
-  {
-    "image": "assets/images/rakshaBhandhan_1-tem.png",
-    "image_2": "assets/images/rakshaBhandhan_1.png",
-    "searchText": "Raksha Bandhan",
-    "title": "Festivals Event",
-    "type": "Post"
-  },
-  {
-    "image": "assets/images/newYear_2-tem.png",
-    "image_2": "assets/images/newYear_2.png",
-    "searchText": "Happy New Year",
-    "title": "Festivals Event",
-    "type": "Post"
-  },
-  {
-    "image": "assets/images/rathYatra_1-tem.png",
-    "image_2": "assets/images/rathYatra_1.png",
-    "searchText": "Rath Yatra",
-    "title": "Festivals Event",
-    "type": "Post"
-  },
-  {
-    "image": "assets/images/ganeshChaturthi_1-tem.png",
-    "image_2": "assets/images/ganeshChaturthi_1.png",
-    "searchText": "Ganesh Chaturthi",
-    "title": "Festivals Event",
-    "type": "Post"
-  },
-  {
-    "image": "assets/images/republicDay_1-tem.png",
-    "image_2": "assets/images/republicDay_1.png",
+    "image": "assets/images/republicDay_5-tem.png",
+    "image_2": "assets/images/republicDay_5.png",
     "searchText": "Republic Day",
     "title": "Patriotic Day",
     "type": "Post"
   },
   {
-    "image": "assets/images/holi_1-tem2.png",
-    "image_2": "assets/images/holi_1.png",
-    "searchText": "Holi",
-    "title": "Festivals Event",
-    "type": "Post"
-  },
-  {
-    "image": "assets/images/valentine_2-tem.png",
-    "image_2": "assets/images/valentine_2.png",
-    "searchText": "Valentine Day",
-    "title": "Special Days",
-    "type": "Post"
-  },
-  {
-    "image": "assets/images/rakshaBhandhan_2-tem.png",
-    "image_2": "assets/images/rakshaBhandhan_2.png",
-    "searchText": "Raksha Bandhan",
-    "title": "Festivals Event",
-    "type": "Post"
-  },
-  {
-    "image": "assets/images/independence_5-tem.png",
-    "image_2": "assets/images/independence_5.png",
-    "searchText": "Independence Day",
+    "image": "assets/images/republicDay_4-tem.png",
+    "image_2": "assets/images/republicDay_4.png",
+    "searchText": "Republic Day",
     "title": "Patriotic Day",
     "type": "Post"
   },
   {
-    "image": "assets/images/newYear_3-tem.png",
-    "image_2": "assets/images/newYear_3.png",
-    "searchText": "Happy New Year",
-    "title": "Festivals Event",
+    "image": "assets/images/republicDay_3-tem.png",
+    "image_2": "assets/images/republicDay_3.png",
+    "searchText": "Republic Day",
+    "title": "Patriotic Day",
     "type": "Post"
   },
   {
-    "image": "assets/images/Chrismas_2-tem.png",
-    "image_2": "assets/images/Chrismas_2.png",
-    "searchText": "Merry Christmas",
-    "title": "Festivals Event",
+    "image": "assets/images/republicDay_2-tem.png",
+    "image_2": "assets/images/republicDay_2.png",
+    "searchText": "Republic Day",
+    "title": "Patriotic Day",
     "type": "Post"
   },
   {
-    "image": "assets/images/visitingCardPreview_1.png",
-    "image_2": "assets/images/visitingCardFrontSide_1.png",
-    "image_3": "assets/images/visitingCardBackSide_1.png",
+    "image": "assets/images/visitingCardPreview_3.png",
+    "image_2": "assets/images/visitingCardFrontSide_3.png",
+    "image_3": "assets/images/visitingCardBackSide_3.png",
     "searchText": "Visiting Card",
     "title": "Visiting Card",
     "type": "Visiting Card"
@@ -170,51 +56,165 @@
     "type": "Visiting Card"
   },
   {
-    "image": "assets/images/visitingCardPreview_3.png",
-    "image_2": "assets/images/visitingCardFrontSide_3.png",
-    "image_3": "assets/images/visitingCardBackSide_3.png",
+    "image": "assets/images/visitingCardPreview_1.png",
+    "image_2": "assets/images/visitingCardFrontSide_1.png",
+    "image_3": "assets/images/visitingCardBackSide_1.png",
     "searchText": "Visiting Card",
     "title": "Visiting Card",
     "type": "Visiting Card"
   },
   {
-    "image": "assets/images/republicDay_2-tem.png",
-    "image_2": "assets/images/republicDay_2.png",
+    "image": "assets/images/Chrismas_2-tem.png",
+    "image_2": "assets/images/Chrismas_2.png",
+    "searchText": "Merry Christmas",
+    "title": "Festivals Event",
+    "type": "Post"
+  },
+  {
+    "image": "assets/images/newYear_3-tem.png",
+    "image_2": "assets/images/newYear_3.png",
+    "searchText": "Happy New Year",
+    "title": "Festivals Event",
+    "type": "Post"
+  },
+  {
+    "image": "assets/images/independence_5-tem.png",
+    "image_2": "assets/images/independence_5.png",
+    "searchText": "Independence Day",
+    "title": "Patriotic Day",
+    "type": "Post"
+  },
+  {
+    "image": "assets/images/rakshaBhandhan_2-tem.png",
+    "image_2": "assets/images/rakshaBhandhan_2.png",
+    "searchText": "Raksha Bandhan",
+    "title": "Festivals Event",
+    "type": "Post"
+  },
+  {
+    "image": "assets/images/valentine_2-tem.png",
+    "image_2": "assets/images/valentine_2.png",
+    "searchText": "Valentine Day",
+    "title": "Special Days",
+    "type": "Post"
+  },
+  {
+    "image": "assets/images/holi_1-tem2.png",
+    "image_2": "assets/images/holi_1.png",
+    "searchText": "Holi",
+    "title": "Festivals Event",
+    "type": "Post"
+  },
+  {
+    "image": "assets/images/republicDay_1-tem.png",
+    "image_2": "assets/images/republicDay_1.png",
     "searchText": "Republic Day",
     "title": "Patriotic Day",
     "type": "Post"
   },
   {
-    "image": "assets/images/republicDay_3-tem.png",
-    "image_2": "assets/images/republicDay_3.png",
-    "searchText": "Republic Day",
+    "image": "assets/images/ganeshChaturthi_1-tem.png",
+    "image_2": "assets/images/ganeshChaturthi_1.png",
+    "searchText": "Ganesh Chaturthi",
+    "title": "Festivals Event",
+    "type": "Post"
+  },
+  {
+    "image": "assets/images/rathYatra_1-tem.png",
+    "image_2": "assets/images/rathYatra_1.png",
+    "searchText": "Rath Yatra",
+    "title": "Festivals Event",
+    "type": "Post"
+  },
+  {
+    "image": "assets/images/newYear_2-tem.png",
+    "image_2": "assets/images/newYear_2.png",
+    "searchText": "Happy New Year",
+    "title": "Festivals Event",
+    "type": "Post"
+  },
+  {
+    "image": "assets/images/rakshaBhandhan_1-tem.png",
+    "image_2": "assets/images/rakshaBhandhan_1.png",
+    "searchText": "Raksha Bandhan",
+    "title": "Festivals Event",
+    "type": "Post"
+  },
+  {
+    "image": "assets/images/independence_4-tem.png",
+    "image_2": "assets/images/independence_4.png",
+    "searchText": "Independence Day",
     "title": "Patriotic Day",
     "type": "Post"
   },
   {
-    "image": "assets/images/republicDay_4-tem.png",
-    "image_2": "assets/images/republicDay_4.png",
-    "searchText": "Republic Day",
+    "image": "assets/images/fatherDay_1-tem.png",
+    "image_2": "assets/images/fatherDay_1.png",
+    "searchText": "Father Day",
+    "title": "Special Days",
+    "type": "Post"
+  },
+  {
+    "image": "assets/images/independence_3-tem.png",
+    "image_2": "assets/images/independence_3.png",
+    "searchText": "Independence Day",
     "title": "Patriotic Day",
     "type": "Post"
   },
   {
-    "image": "assets/images/republicDay_5-tem.png",
-    "image_2": "assets/images/republicDay_5.png",
-    "searchText": "Republic Day",
+    "image": "assets/images/independence_2-tem.png",
+    "image_2": "assets/images/independence_2.png",
+    "searchText": "Independence Day",
     "title": "Patriotic Day",
     "type": "Post"
   },
   {
-    "image": "assets/images/eid_1-tem.png",
-    "image_2": "assets/images/eid_1.png",
-    "searchText": "Eid",
-    "title": "Festivals Event"
+    "image": "assets/images/valentine_1-tem.png",
+    "image_2": "assets/images/valentine_1.png",
+    "searchText": "Valentine Day",
+    "title": "Special Days",
+    "type": "Post"
   },
   {
-    "image": "assets/images/eid_2-tem.png",
-    "image_2": "assets/images/eid_2.png",
-    "searchText": "Eid",
-    "title": "Festivals Event"
+    "image": "assets/images/janmashatmi_2-tem.png",
+    "image_2": "assets/images/janmashatmi_2.png",
+    "searchText": "Janmashtami",
+    "title": "Festivals Event",
+    "type": "Post"
+  },
+  {
+    "image": "assets/images/newYear_1-tem.png",
+    "image_2": "assets/images/newYear_1.png",
+    "searchText": "Happy New Year",
+    "title": "Festivals Event",
+    "type": "Post"
+  },
+  {
+    "image": "assets/images/enviroment_1-tem.png",
+    "image_2": "assets/images/environment_1.png",
+    "searchText": "Environment Day",
+    "title": "Special Days",
+    "type": "Post"
+  },
+  {
+    "image": "assets/images/motherDay_1-tem.png",
+    "image_2": "assets/images/motherDay_1.png",
+    "searchText": "Mother Day",
+    "title": "Special Days",
+    "type": "Post"
+  },
+  {
+    "image": "assets/images/holi_2-tem.png",
+    "image_2": "assets/images/holi_2.png",
+    "searchText": "Holi",
+    "title": "Festivals Event",
+    "type": "Post"
+  },
+  {
+    "image": "assets/images/independence_1-tem.png",
+    "image_2": "assets/images/independence_1.png",
+    "searchText": "Independence Day",
+    "title": "Patriotic Day",
+    "type": "Post"
   }
 ]

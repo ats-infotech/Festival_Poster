@@ -11,6 +11,7 @@ import 'package:photo_frame/Contstant/CommonMethod.dart';
 import 'package:photo_frame/Screen/EditImageScreen.dart';
 import 'package:photo_frame/Screen/EditVisitingCard.dart';
 import 'package:photo_frame/Screen/HomePage.dart';
+import 'package:photo_frame/service/firebase_analytics_service.dart';
 import 'package:shimmer/shimmer.dart';
 
 int tabTap = 0;
@@ -72,7 +73,7 @@ class _TemplatesState extends State<Templates> {
           ),
           iosUiSettings: const IOSUiSettings(
             title: 'Edit',
-          ),
+        ),
         );
         if (croppedFile != null) {
           setState(() {
@@ -264,6 +265,8 @@ class _TemplatesState extends State<Templates> {
                             focusNode: focusNode,
                             onChanged: (value) {
                               serchData(value);
+                              FirebaseAnalyticsService.instance.logEvent(
+                          name: 'search_template', parameters: {"query": value});
                               setState(() {});
                             },
                           ),
@@ -340,13 +343,14 @@ class _TemplatesState extends State<Templates> {
                                     return GestureDetector(
                                       onTap: () async {
                                         templateName = dataList[index]["title"];
+                                        templateSearchName = dataList[index]["searchText"];
                                         print(
                                             " ---------- Template Name -------- ${templateName}");
                                         reviewCount(context);
                                         await imageDialog(
                                           context,
                                           index,
-                                          
+                                          templateName: dataList[index]["searchText"],
                                         );
                                         cropImage(index);
                                         setState(() {});
@@ -415,16 +419,20 @@ class _TemplatesState extends State<Templates> {
                                                   await imageDialog(
                                                     context,
                                                     index,
+                                                    templateName: dataList[index]['searchText']
                                                     // setState,
                                                   );
                                                   cropImage(index);
                                                 },
                                                 child: Container(
                                                   margin: const EdgeInsets.only(
-                                                      top: 15),
+                                                      top: 15,
+                                                      left: 10,
+                                                      right: 10),
                                                   height: h,
                                                   child: Image.asset(
                                                     dataList[index]["image"],
+                                                    fit: BoxFit.fill,
                                                   ),
                                                 ),
                                               ),
@@ -502,13 +510,17 @@ class _TemplatesState extends State<Templates> {
                                                   templateName =
                                                       patrioticDayList[index]
                                                           ["title"];
+                                                  templateSearchName =
+                                                      patrioticDayList[index]
+                                                          ["searchText"];
                                                   print(
                                                       " ---------- Template Name -------- ${templateName}");
                                                   reviewCount(context);
                                                   await imageDialog(
+                                                    templateName: patrioticDayList[index]
+                                                          ["searchText"],
                                                     context,
                                                     index,
-                                                    
                                                   );
                                                   cropImage(index);
                                                 },
@@ -598,23 +610,30 @@ class _TemplatesState extends State<Templates> {
                                                       templateName =
                                                           festivalsEventList[
                                                               index]["title"];
+                                                      templateSearchName =
+                                                          festivalsEventList[
+                                                              index]["searchText"];
                                                       print(
                                                           " ---------- Template Name -------- ${templateName}");
                                                       reviewCount(context);
                                                       await imageDialog(
+                                                        templateName: festivalsEventList[
+                                                              index]["searchText"],
                                                         context,
                                                         index,
-                                                        
                                                       );
                                                       cropImage(index);
                                                     },
                                                     child: Container(
                                                       margin:
                                                           const EdgeInsets.only(
-                                                              top: 15),
+                                                              top: 15,
+                                                              left: 10,
+                                                              right: 10),
                                                       child: Image.asset(
                                                         festivalsEventList[
                                                             index]["image"],
+                                                        fit: BoxFit.fill,
                                                       ),
                                                     ),
                                                   ),
@@ -704,13 +723,19 @@ class _TemplatesState extends State<Templates> {
                                                               specialDaysList[
                                                                       index]
                                                                   ["title"];
+                                                          templateSearchName =
+                                                              specialDaysList[
+                                                                      index]
+                                                                  ["searchText"];
                                                           print(
                                                               " ---------- Template Name -------- ${templateName}");
                                                           reviewCount(context);
                                                           await imageDialog(
+                                                            templateName: specialDaysList[
+                                                                      index]
+                                                                  ["searchText"],
                                                             context,
                                                             index,
-                                                            
                                                           );
                                                           cropImage(index);
                                                         },
@@ -718,10 +743,13 @@ class _TemplatesState extends State<Templates> {
                                                           margin:
                                                               const EdgeInsets
                                                                   .only(
-                                                                  top: 15),
+                                                                  top: 15,
+                                                                  left: 10,
+                                                                  right: 10),
                                                           child: Image.asset(
                                                             specialDaysList[
                                                                 index]["image"],
+                                                            fit: BoxFit.fill,
                                                           ),
                                                         ),
                                                       ),
@@ -810,6 +838,10 @@ class _TemplatesState extends State<Templates> {
                                                               visitingCardList[
                                                                       index]
                                                                   ["title"];
+                                                          templateSearchName =
+                                                              visitingCardList[
+                                                                      index]
+                                                                  ["searchText"];
                                                           print(
                                                               " ---------- Template Name -------- ${templateName}");
                                                           reviewCount(context);

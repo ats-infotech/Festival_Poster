@@ -17,6 +17,7 @@ import 'package:photo_frame/Contstant/itemModel.dart';
 import 'package:photo_frame/Contstant/CommonMethod.dart';
 import 'package:photo_frame/Screen/BottomNavBar.dart';
 import 'package:photo_frame/Screen/HomePage.dart';
+import 'package:photo_frame/service/firebase_analytics_service.dart';
 import 'package:photo_view/photo_view.dart';
 import 'package:share_extend/share_extend.dart';
 
@@ -533,6 +534,9 @@ class _EditImageScreenState extends State<EditImageScreen> {
       print("-------- image File ------ ${imageFile.path}");
       await GallerySaver.saveImage(imageFile.path,
           albumName: "Festival Poster");
+
+      FirebaseAnalyticsService.instance.logEvent(
+          name: 'save_template', parameters: {'name': templateSearchName});
       editController.isImageSaveLoader.value = false;
       imageSaveSuccessDialog(
         context,

@@ -21,6 +21,8 @@ import 'package:photo_frame/Screen/EditVisitingCard.dart';
 import 'package:photo_frame/Screen/HomePage.dart';
 import 'package:photo_frame/Screen/Templates.dart';
 import 'package:photo_frame/WebScreen/EditImageScreenWeb.dart';
+import 'package:photo_frame/service/email_service.dart';
+import 'package:photo_frame/service/firebase_analytics_service.dart';
 import 'package:shimmer/shimmer.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'dart:ui' as ui;
@@ -111,13 +113,19 @@ List drawerList = [
     "icon": "assets/images/drawerSaveImage.png",
   },
   {
+    "name": "Feedback",
+    "icon": "assets/images/survey.png",
+  },
+  {
     "name": "Privacy and Policy",
     "icon": "assets/images/drawerPrivacyPolicy.png",
   },
 ];
 
 // Image Pick Dialog
-imageDialog(BuildContext context, int index) {
+imageDialog(BuildContext context, int index,{required String templateName}) {
+    FirebaseAnalyticsService.instance.logEvent(
+                            name: 'template_selection', parameters: {'name': templateName});
   return showGeneralDialog(
     barrierDismissible: false,
     context: context,
@@ -986,6 +994,19 @@ Future<void> reviewCount(BuildContext context) async {
     showFeedBackDialog(context);
     await SharedPreference.sharedPreference.setIntMethod("reviewKey", 0);
     print("-------- Else Review Index ---------- $reviewIndex");
+  }
+
+  // •••••••••••••••• for survey ••••••••••••••••
+  var surveyCount = await SharedPreference.sharedPreference.getSurveyCount();
+  var isSurveyComplated =
+      await SharedPreference.sharedPreference.isSurveyComplated();
+  if (isSurveyComplated == true) {
+  } else if (surveyCount < 6) {
+    await SharedPreference.sharedPreference
+        .setSurveyCount(count: surveyCount + 1);
+  } else {
+    showSurveyDialog(context);
+    await SharedPreference.sharedPreference.setSurveyCount(count: 0);
   }
 }
 
@@ -3442,4 +3463,480 @@ void showPermissionDeniedDialog(
       ),
     ],
   ));
+}
+
+void showSurveyDialog(BuildContext context) {
+  int pageNumber = 0;
+  int questionNumber = 0;
+  final List qnaList = [
+    {
+      "question": "Do you find the application easy to use?",
+      "answer": "YES",
+    },
+    {
+      "question": "Are you satisfied with the features provided?",
+      "answer": "YES",
+    },
+    {
+      "question": "Do you think the app meets your expectations?",
+      "answer": "YES",
+    },
+    {
+      "question": "Did you experience any issues or bugs while using the app?",
+      "answer": "YES",
+    },
+  ];
+  TextEditingController txtDescription = TextEditingController();
+  showGeneralDialog(
+    barrierDismissible: false,
+    context: context,
+    pageBuilder: (context, animation, secondaryAnimation) {
+      return Container();
+    },
+    transitionBuilder: (context, a1, a2, widget) {
+      return Scaffold(
+        backgroundColor: Colors.transparent,
+        body: Transform.scale(
+          scale: a1.value,
+          child: StatefulBuilder(
+            builder: (context, newSetState) {
+              return Opacity(
+                opacity: a1.value,
+                child: Center(
+                  child: isLoader
+                      ? const CircularProgressIndicator(
+                          color: kPrimeryColor,
+                        )
+                      : Stack(
+                          children: [
+                            Container(
+                              margin: const EdgeInsets.symmetric(
+                                  horizontal: 20, vertical: 20),
+                              decoration: BoxDecoration(
+                                color: whiteColor,
+                                borderRadius: BorderRadius.circular(20),
+                              ),
+                              width: double.infinity,
+                              child: Padding(
+                                padding: const EdgeInsets.symmetric(
+                                    vertical: 36, horizontal: 34),
+                                child: Column(
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
+                                    mainAxisSize: MainAxisSize.min,
+                                    children: switch (pageNumber) {
+                                      0 => [
+                                          Center(
+                                            child: Container(
+                                                height: 50,
+                                                width: 50,
+                                                child: Image.asset(
+                                                  'assets/images/AppLogo.png',
+                                                )),
+                                          ),
+                                          const SizedBox(
+                                            height: 10,
+                                          ),
+                                          Text(
+                                            "We'd Love Your Feedback!",
+                                            style: GoogleFonts.poppins(
+                                              fontSize: 20,
+                                              fontWeight: FontWeight.w500,
+                                              color: kPrimeryColor,
+                                            ),
+                                          ),
+                                          Text(
+                                            "Your feedback helps us improve the app and provide a better experience.",
+                                            style: GoogleFonts.poppins(
+                                              fontSize: 16,
+                                              fontWeight: FontWeight.w500,
+                                              color: const Color(0xff7D7E80),
+                                            ),
+                                          ),
+                                          const SizedBox(
+                                            height: 10,
+                                          ),
+                                          InkWell(
+                                            onTap: () {
+                                              newSetState(() {
+                                                pageNumber = 1;
+                                              });
+                                            },
+                                            child: Container(
+                                              height: 48,
+                                              width: double.infinity,
+                                              decoration: BoxDecoration(
+                                                  color: kPrimeryColor,
+                                                  borderRadius:
+                                                      BorderRadius.circular(8)),
+                                              alignment: Alignment.center,
+                                              child: Text(
+                                                'Take the Survey',
+                                                style: GoogleFonts.poppins(
+                                                  fontSize: 18,
+                                                  fontWeight: FontWeight.w600,
+                                                  color: Colors.white,
+                                                ),
+                                              ),
+                                            ),
+                                          ),
+                                        ],
+                                      1 => [
+                                          Center(
+                                            child: Container(
+                                                height: 50,
+                                                width: 50,
+                                                child: Image.asset(
+                                                  'assets/images/AppLogo.png',
+                                                )),
+                                          ),
+                                          const SizedBox(
+                                            height: 10,
+                                          ),
+                                          Text(
+                                            qnaList[questionNumber]['question'],
+                                            style: GoogleFonts.poppins(
+                                              fontSize: 20,
+                                              fontWeight: FontWeight.w500,
+                                              color: kPrimeryColor,
+                                            ),
+                                          ),
+                                          const SizedBox(
+                                            height: 10,
+                                          ),
+                                          Row(
+                                            children: [
+                                              Expanded(
+                                                child: InkWell(
+                                                  onTap: () {
+                                                    newSetState(() {
+                                                      qnaList[questionNumber]
+                                                          ['answer'] = "YES";
+                                                    });
+                                                  },
+                                                  child: Container(
+                                                    height: 42,
+                                                    decoration: BoxDecoration(
+                                                        color: qnaList[questionNumber]
+                                                                    [
+                                                                    'answer'] ==
+                                                                "YES"
+                                                            ? const Color(
+                                                                0xffDEE8FE)
+                                                            : null,
+                                                        border: Border.all(
+                                                            width: 2,
+                                                            color: qnaList[questionNumber]
+                                                                        [
+                                                                        'answer'] ==
+                                                                    "YES"
+                                                                ? kPrimeryColor
+                                                                : Color(
+                                                                    0xffDEE8FE)),
+                                                        borderRadius:
+                                                            BorderRadius
+                                                                .circular(8)),
+                                                    alignment: Alignment.center,
+                                                    child: Text(
+                                                      'YES',
+                                                      style:
+                                                          GoogleFonts.poppins(
+                                                        fontSize: 18,
+                                                        fontWeight:
+                                                            FontWeight.w600,
+                                                        color: kPrimeryColor,
+                                                      ),
+                                                    ),
+                                                  ),
+                                                ),
+                                              ),
+                                              const SizedBox(
+                                                width: 8,
+                                              ),
+                                              Expanded(
+                                                child: InkWell(
+                                                  onTap: () {
+                                                    newSetState(() {
+                                                      qnaList[questionNumber]
+                                                          ['answer'] = "NO";
+                                                    });
+                                                  },
+                                                  child: Container(
+                                                    height: 42,
+                                                    decoration: BoxDecoration(
+                                                        color: qnaList[questionNumber]
+                                                                    [
+                                                                    'answer'] ==
+                                                                "NO"
+                                                            ? const Color(
+                                                                0xffDEE8FE)
+                                                            : null,
+                                                        border: Border.all(
+                                                            width: 2,
+                                                            color: qnaList[questionNumber]
+                                                                        [
+                                                                        'answer'] ==
+                                                                    "NO"
+                                                                ? kPrimeryColor
+                                                                : Color(
+                                                                    0xffDEE8FE)),
+                                                        borderRadius:
+                                                            BorderRadius
+                                                                .circular(8)),
+                                                    alignment: Alignment.center,
+                                                    child: Text(
+                                                      'NO',
+                                                      style:
+                                                          GoogleFonts.poppins(
+                                                        fontSize: 18,
+                                                        fontWeight:
+                                                            FontWeight.w600,
+                                                        color: kPrimeryColor,
+                                                      ),
+                                                    ),
+                                                  ),
+                                                ),
+                                              ),
+                                            ],
+                                          ),
+                                          const SizedBox(
+                                            height: 24,
+                                          ),
+                                          Row(
+                                            mainAxisAlignment:
+                                                MainAxisAlignment.end,
+                                            children: [
+                                              questionNumber == 0
+                                                  ? Container()
+                                                  : InkWell(
+                                                      onTap: () {
+                                                        newSetState(() {
+                                                          questionNumber--;
+                                                        });
+                                                      },
+                                                      child: Text(
+                                                        'Previous',
+                                                        style:
+                                                            GoogleFonts.poppins(
+                                                          fontSize: 18,
+                                                          fontWeight:
+                                                              FontWeight.w600,
+                                                          color: kPrimeryColor,
+                                                        ),
+                                                      ),
+                                                    ),
+                                              const SizedBox(
+                                                width: 10,
+                                              ),
+                                              InkWell(
+                                                onTap: () {
+                                                  newSetState(() {
+                                                    if (questionNumber >= 3) {
+                                                      pageNumber = 2;
+                                                    } else {
+                                                      questionNumber++;
+                                                    }
+                                                  });
+                                                },
+                                                child: Container(
+                                                  height: 34,
+                                                  decoration: BoxDecoration(
+                                                      color: kPrimeryColor,
+                                                      borderRadius:
+                                                          BorderRadius.circular(
+                                                              8)),
+                                                  alignment: Alignment.center,
+                                                  padding: const EdgeInsets
+                                                      .symmetric(
+                                                    horizontal: 20,
+                                                  ),
+                                                  child: Text(
+                                                    'Next',
+                                                    style: GoogleFonts.poppins(
+                                                      fontSize: 18,
+                                                      fontWeight:
+                                                          FontWeight.w600,
+                                                      color: Colors.white,
+                                                    ),
+                                                  ),
+                                                ),
+                                              ),
+                                            ],
+                                          ),
+                                        ],
+                                      2 => [
+                                          Center(
+                                            child: SizedBox(
+                                                height: 50,
+                                                width: 50,
+                                                child: Image.asset(
+                                                  'assets/images/AppLogo.png',
+                                                )),
+                                          ),
+                                          const SizedBox(
+                                            height: 10,
+                                          ),
+                                          Text(
+                                            "What improvements would you like to see in the app?",
+                                            style: GoogleFonts.poppins(
+                                              fontSize: 20,
+                                              fontWeight: FontWeight.w500,
+                                              color: kPrimeryColor,
+                                            ),
+                                          ),
+                                          const SizedBox(
+                                            height: 10,
+                                          ),
+                                          TextField(
+                                            maxLines: 4,
+                                            controller: txtDescription,
+                                            cursorColor: kPrimeryColor,
+                                            style: GoogleFonts.poppins(
+                                              fontSize: 14,
+                                              fontWeight: FontWeight.w500,
+                                              color: kPrimeryColor,
+                                            ),
+                                            decoration: InputDecoration(
+                                              hintText:
+                                                  'Share your thoughts here',
+                                              hintStyle: GoogleFonts.poppins(
+                                                fontSize: 14,
+                                                fontWeight: FontWeight.w300,
+                                                color: const Color(0xff686767),
+                                              ),
+                                              border: const OutlineInputBorder(
+                                                borderSide: BorderSide(
+                                                    color: Color(0xff929292)),
+                                                borderRadius: BorderRadius.all(
+                                                  Radius.circular(10),
+                                                ),
+                                              ),
+                                              focusedBorder:
+                                                  const OutlineInputBorder(
+                                                borderSide: BorderSide(
+                                                    color: kPrimeryColor),
+                                                borderRadius: BorderRadius.all(
+                                                  Radius.circular(10),
+                                                ),
+                                              ),
+                                            ),
+                                          ),
+                                          const SizedBox(
+                                            height: 10,
+                                          ),
+                                          InkWell(
+                                            onTap: () {
+                                              newSetState(() {
+                                                pageNumber = 3;
+                                                SharedPreference
+                                                    .sharedPreference
+                                                    .setSurveyComplated(
+                                                        isSurveyComplated:
+                                                            true);
+                                                EmailService.instance.sendSurvey(
+                                                    body:
+                                                        '''1.${qnaList[0]['question']} = ${qnaList[0]['answer']}\n2.${qnaList[1]['question']} = ${qnaList[1]['answer']}\n3.${qnaList[2]['question']} = ${qnaList[2]['answer']}\n4.${qnaList[3]['question']} = ${qnaList[3]['answer']}\n5.What improvements would you like to see in the app? = ${txtDescription.text.trim()}''');
+                                              });
+                                            },
+                                            child: Container(
+                                              height: 48,
+                                              width: double.infinity,
+                                              decoration: BoxDecoration(
+                                                  color: kPrimeryColor,
+                                                  borderRadius:
+                                                      BorderRadius.circular(8)),
+                                              alignment: Alignment.center,
+                                              child: Text(
+                                                'Submit',
+                                                style: GoogleFonts.poppins(
+                                                  fontSize: 18,
+                                                  fontWeight: FontWeight.w600,
+                                                  color: Colors.white,
+                                                ),
+                                              ),
+                                            ),
+                                          ),
+                                        ],
+                                      3 => [
+                                          Center(
+                                            child: SizedBox(
+                                                height: 72,
+                                                width: 72,
+                                                child: Image.asset(
+                                                  'assets/images/success_survey.png',
+                                                )),
+                                          ),
+                                          const SizedBox(
+                                            height: 10,
+                                          ),
+                                          Text(
+                                            "Thank you for your feedback! We appreciate your input and will use it to improve our services.",
+                                            style: GoogleFonts.poppins(
+                                              fontSize: 18,
+                                              fontWeight: FontWeight.w500,
+                                              color: kPrimeryColor,
+                                            ),
+                                          ),
+                                          const SizedBox(
+                                            height: 10,
+                                          ),
+                                          InkWell(
+                                            onTap: () {
+                                              Navigator.pop(context);
+                                            },
+                                            child: Container(
+                                              height: 48,
+                                              width: double.infinity,
+                                              decoration: BoxDecoration(
+                                                  color: kPrimeryColor,
+                                                  borderRadius:
+                                                      BorderRadius.circular(8)),
+                                              alignment: Alignment.center,
+                                              child: Text(
+                                                'OK',
+                                                style: GoogleFonts.poppins(
+                                                  fontSize: 18,
+                                                  fontWeight: FontWeight.w600,
+                                                  color: Colors.white,
+                                                ),
+                                              ),
+                                            ),
+                                          ),
+                                        ],
+                                      int() => [],
+                                    }),
+                              ),
+                            ),
+                            Positioned(
+                              right: 8,
+                              top: 8,
+                              child: GestureDetector(
+                                onTap: () {
+                                  image = null;
+                                  Navigator.pop(context);
+                                },
+                                child: Container(
+                                  height: 35,
+                                  width: 35,
+                                  decoration: const BoxDecoration(
+                                    color: kPrimeryColor,
+                                    shape: BoxShape.circle,
+                                  ),
+                                  child: const Icon(
+                                    Icons.close,
+                                    color: whiteColor,
+                                  ),
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                ),
+              );
+            },
+          ),
+        ),
+      );
+    },
+  );
 }

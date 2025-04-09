@@ -1,6 +1,7 @@
 import 'dart:developer';
 import 'dart:io';
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:image_cropper/image_cropper.dart';
 import 'package:page_transition/page_transition.dart';
@@ -12,6 +13,7 @@ import 'package:photo_frame/Screen/EditVisitingCard.dart';
 import 'package:photo_frame/Screen/HomePage.dart';
 import 'package:photo_frame/Screen/SpecificPoster.dart';
 import 'package:photo_frame/Screen/Templates.dart';
+import 'package:photo_frame/service/firebase_analytics_service.dart';
 import 'package:speech_to_text/speech_recognition_result.dart';
 import 'package:speech_to_text/speech_to_text.dart';
 
@@ -275,6 +277,8 @@ class _HomeSearchPageState extends State<HomeSearchPage> {
                     onChanged: (value) {
                       searchData(value);
                       searchTemplateData(value);
+                      FirebaseAnalyticsService.instance.logEvent(
+                          name: 'search', parameters: {"query": value});
                       setState(() {});
                     },
                   ),
@@ -317,19 +321,104 @@ class _HomeSearchPageState extends State<HomeSearchPage> {
                             )
                           : Container(),
                       homeDataList.isNotEmpty
-                          ? SizedBox(
-                              height: isSeeAllTap ? 150 : null,
-                              child: Container(
-                                margin:
-                                    const EdgeInsets.symmetric(horizontal: 20),
-                                child: GridView.count(
-                                  physics: const NeverScrollableScrollPhysics(),
-                                  shrinkWrap: true,
-                                  crossAxisCount: 3,
-                                  childAspectRatio: 0.0022 * w,
-                                  children: List.generate(
-                                    homeDataList.length,
-                                    (index) {
+                          ? Container(
+                              margin:
+                                  const EdgeInsets.symmetric(horizontal: 20),
+                              child:
+
+                                  //  GridView.count(
+                                  //   physics: const NeverScrollableScrollPhysics(),
+                                  //   shrinkWrap: true,
+                                  //   crossAxisCount: 3,
+                                  //   childAspectRatio: 0.0022 * w,
+                                  //   children: List.generate(
+                                  //     homeDataList.length,
+                                  //     (index) {
+                                  //       return GestureDetector(
+                                  //         onTap: () {
+                                  //           selectedName =
+                                  //               homeDataList[index]["name"];
+                                  //           Navigator.push(
+                                  //             context,
+                                  //             PageTransition(
+                                  //               type: PageTransitionType
+                                  //                   .rightToLeftWithFade,
+                                  //               child: const SpecificPoster(),
+                                  //             ),
+                                  //           );
+                                  //         },
+                                  //         child: Container(
+                                  //           margin:
+                                  //               const EdgeInsets.only(top: 30),
+                                  //           width: w / 3 - 20,
+                                  //           child: Column(
+                                  //             mainAxisAlignment:
+                                  //                 MainAxisAlignment.spaceAround,
+                                  //             children: [
+                                  //               Material(
+                                  //                 elevation: 5,
+                                  //                 borderRadius:
+                                  //                     BorderRadius.circular(70),
+                                  //                 child: Container(
+                                  //                   height: 70,
+                                  //                   width: 70,
+                                  //                   decoration:
+                                  //                       const BoxDecoration(
+                                  //                     color: whiteColor,
+                                  //                     shape: BoxShape.circle,
+                                  //                   ),
+                                  //                   child: Image.asset(
+                                  //                     homeDataList[index]["icon"],
+                                  //                     scale: 5,
+                                  //                   ),
+                                  //                 ),
+                                  //               ),
+                                  //               const SizedBox(
+                                  //                 height: 12,
+                                  //               ),
+                                  //               Text(
+                                  //                 homeDataList[index]["name"],
+                                  //                 style: GoogleFonts.poppins(
+                                  //                   fontSize: 0.03 * w,
+                                  //                   color: kPrimeryColor,
+                                  //                   fontWeight: FontWeight.w600,
+                                  //                 ),
+                                  //               ),
+                                  //             ],
+                                  //           ),
+                                  //         ),
+                                  //       );
+                                  //     },
+                                  //   ),
+                                  // ),
+
+                                  Builder(builder: (context) {
+                                double screenWidth = Get.width;
+                                double screenHeight = Get.height;
+
+                                double maxCrossAxisExtent = screenWidth / 3;
+                                double childAspectRatio =
+                                    screenWidth / (screenHeight / 2);
+                                if (screenWidth < 500) {
+                                  childAspectRatio = .8;
+                                }
+
+                                if (screenWidth > 800) {
+                                  childAspectRatio = 1.5;
+                                }
+
+                                return Container(
+                                  height: isSeeAllTap ? 160 : null,
+                                  child: GridView.builder(
+                                    itemCount: homeDataList.length,
+                                    physics: NeverScrollableScrollPhysics(),
+                                    shrinkWrap: true,
+                                    gridDelegate:
+                                        SliverGridDelegateWithMaxCrossAxisExtent(
+                                      maxCrossAxisExtent: maxCrossAxisExtent,
+                                      childAspectRatio: childAspectRatio,
+                                    ),
+                                    itemBuilder: (context, index) {
                                       return GestureDetector(
                                         onTap: () {
                                           selectedName =
@@ -386,8 +475,8 @@ class _HomeSearchPageState extends State<HomeSearchPage> {
                                       );
                                     },
                                   ),
-                                ),
-                              ),
+                                );
+                              }),
                             )
                           : Container(),
                       const SizedBox(
@@ -409,6 +498,8 @@ class _HomeSearchPageState extends State<HomeSearchPage> {
                                     onTap: () async {
                                       templateName =
                                           homePosterDataList[index]["title"];
+                                      templateSearchName =
+                                          homePosterDataList[index]["searchText"];
                                       print(
                                           " ---------- Template Name -------- ${templateName}");
                                       homePosterDataList[index]["type"] ==
@@ -417,9 +508,11 @@ class _HomeSearchPageState extends State<HomeSearchPage> {
                                               await imageDialog(
                                                 context,
                                                 index,
+                                                templateName: homePosterDataList[index]["searchText"],
                                               ),
                                               cropImage(index),
                                               reviewCount(context),
+                                              w
                                             }
                                           : Navigator.push(
                                               context,
@@ -508,6 +601,9 @@ class _HomeSearchPageState extends State<HomeSearchPage> {
                                             const Templates(scrollPosition: 0),
                                       ),
                                     );
+                                    FirebaseAnalyticsService.instance.logEvent(
+                                        name: 'view_all',
+                                        parameters: {'name': 'Patriotic Day'});
                                   }),
                                 ),
                                 const SizedBox(
@@ -526,12 +622,14 @@ class _HomeSearchPageState extends State<HomeSearchPage> {
                                         onTap: () async {
                                           templateName =
                                               patrioticDayList[index]["title"];
+                                          templateSearchName =
+                                              patrioticDayList[index]["searchText"];
                                           print(
                                               " ---------- Template Name -------- ${templateName}");
                                           isPatrioticImageTap = true;
                                           isFestivalImageTap = false;
                                           isSpecialImageTap = false;
-                                          await imageDialog(context, index);
+                                          await imageDialog(context, index,templateName: patrioticDayList[index]["searchText"]);
                                           cropImage(index);
                                           reviewCount(context);
                                           setState(() {});
@@ -574,6 +672,12 @@ class _HomeSearchPageState extends State<HomeSearchPage> {
                                               scrollPosition: 320),
                                         ),
                                       );
+                                      FirebaseAnalyticsService.instance
+                                          .logEvent(
+                                              name: 'view_all',
+                                              parameters: {
+                                            'name': 'Transparent Visiting Card'
+                                          });
                                     },
                                   ),
                                 ),
@@ -593,6 +697,8 @@ class _HomeSearchPageState extends State<HomeSearchPage> {
                                         onTap: () {
                                           templateName =
                                               visitingCardList[index]["title"];
+                                          templateSearchName =
+                                              visitingCardList[index]["searchText"];
                                           print(
                                               " ---------- Template Name -------- ${templateName}");
                                           reviewCount(context);
@@ -650,6 +756,12 @@ class _HomeSearchPageState extends State<HomeSearchPage> {
                                               scrollPosition: 320),
                                         ),
                                       );
+                                      FirebaseAnalyticsService.instance
+                                          .logEvent(
+                                              name: 'view_all',
+                                              parameters: {
+                                            'name': 'Folded Visiting Cards'
+                                          });
                                     },
                                   ),
                                 ),
@@ -669,6 +781,8 @@ class _HomeSearchPageState extends State<HomeSearchPage> {
                                         onTap: () {
                                           templateName =
                                               visitingCardList[index]["title"];
+                                          templateSearchName =
+                                              visitingCardList[index]["searchText"];
                                           print(
                                               " ---------- Template Name -------- ${templateName}");
                                           reviewCount(context);
@@ -724,6 +838,9 @@ class _HomeSearchPageState extends State<HomeSearchPage> {
                                             scrollPosition: 100),
                                       ),
                                     );
+                                    FirebaseAnalyticsService.instance.logEvent(
+                                        name: 'view_all',
+                                        parameters: {'name': 'Festival Day'});
                                   }),
                                 ),
                                 const SizedBox(
@@ -743,12 +860,16 @@ class _HomeSearchPageState extends State<HomeSearchPage> {
                                           templateName =
                                               festivalsEventList[index]
                                                   ["title"];
+                                          templateSearchName =
+                                              festivalsEventList[index]
+                                                  ["searchText"];
                                           print(
                                               " ---------- Template Name -------- ${templateName}");
                                           isFestivalImageTap = true;
                                           isPatrioticImageTap = false;
                                           isSpecialImageTap = false;
-                                          await imageDialog(context, index);
+                                          await imageDialog(context, index,templateName: festivalsEventList[index]
+                                                  ["searchText"]);
                                           cropImage(index);
                                           reviewCount(context);
                                           setState(() {});
@@ -791,6 +912,12 @@ class _HomeSearchPageState extends State<HomeSearchPage> {
                                               scrollPosition: 320),
                                         ),
                                       );
+                                      FirebaseAnalyticsService.instance
+                                          .logEvent(
+                                              name: 'view_all',
+                                              parameters: {
+                                            'name': 'Premium Visiting Card'
+                                          });
                                     },
                                   ),
                                 ),
@@ -810,6 +937,8 @@ class _HomeSearchPageState extends State<HomeSearchPage> {
                                         onTap: () {
                                           templateName =
                                               visitingCardList[index]["title"];
+                                          templateSearchName =
+                                              visitingCardList[index]["searchText"];
                                           print(
                                               " ---------- Template Name -------- ${templateName}");
                                           reviewCount(context);
@@ -864,6 +993,9 @@ class _HomeSearchPageState extends State<HomeSearchPage> {
                                             scrollPosition: 250),
                                       ),
                                     );
+                                    FirebaseAnalyticsService.instance.logEvent(
+                                        name: 'view_all',
+                                        parameters: {'name': 'Special Day'});
                                   }),
                                 ),
                                 const SizedBox(
@@ -882,12 +1014,14 @@ class _HomeSearchPageState extends State<HomeSearchPage> {
                                         onTap: () async {
                                           templateName =
                                               specialDaysList[index]["title"];
+                                          templateSearchName =
+                                              specialDaysList[index]["searchText"];
                                           print(
                                               " ---------- Template Name -------- ${templateName}");
                                           isSpecialImageTap = true;
                                           isPatrioticImageTap = false;
                                           isFestivalImageTap = false;
-                                          await imageDialog(context, index);
+                                          await imageDialog(context, index,templateName: specialDaysList[index]["searchText"]);
                                           cropImage(index);
                                           reviewCount(context);
                                           setState(() {});
@@ -930,6 +1064,13 @@ class _HomeSearchPageState extends State<HomeSearchPage> {
                                               scrollPosition: 320),
                                         ),
                                       );
+                                      FirebaseAnalyticsService.instance
+                                          .logEvent(
+                                              name: 'view_all',
+                                              parameters: {
+                                            'name':
+                                                'Photographic Visiting Cards'
+                                          });
                                     },
                                   ),
                                 ),
@@ -949,6 +1090,8 @@ class _HomeSearchPageState extends State<HomeSearchPage> {
                                         onTap: () {
                                           templateName =
                                               visitingCardList[index]["title"];
+                                          templateSearchName =
+                                              visitingCardList[index]["searchText"];
                                           print(
                                               " ---------- Template Name -------- ${templateName}");
                                           reviewCount(context);

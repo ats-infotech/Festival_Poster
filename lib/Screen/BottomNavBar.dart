@@ -14,7 +14,6 @@ import 'package:photo_frame/Screen/PrivacyPolicy.dart';
 import 'package:photo_frame/Screen/Templates.dart';
 import 'package:photo_frame/Screen/saveImageShow.dart';
 
-
 class BottomNavBarBar extends StatefulWidget {
   const BottomNavBarBar({super.key});
 
@@ -376,7 +375,7 @@ class _BottomNavBarBarState extends State<BottomNavBarBar> {
                                                 reviewCount(context),
                                                 drawerContainer = 0,
                                               }
-                                            : index == 4
+                                            : index == 5
                                                 ? {
                                                     Navigator.push(
                                                       context,
@@ -392,7 +391,16 @@ class _BottomNavBarBarState extends State<BottomNavBarBar> {
                                                     reviewCount(context),
                                                     drawerContainer = 0,
                                                   }
-                                                : Container();
+                                                : index == 4
+                                                    ? {
+                                                        scaffoldKey
+                                                            .currentState!
+                                                            .closeDrawer(),
+                                                        showSurveyDialog(
+                                                            context),
+                                                        drawerContainer = 0,
+                                                      }
+                                                    : Container();
                             setState(() {});
                           },
                           child: Container(

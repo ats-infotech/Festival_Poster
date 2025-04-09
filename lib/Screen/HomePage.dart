@@ -15,6 +15,7 @@ import 'package:photo_frame/Screen/HomeSearchPage.dart';
 import 'package:photo_frame/Screen/PopularFestivalSeeAll.dart';
 import 'package:photo_frame/Screen/SpecificPoster.dart';
 import 'package:photo_frame/Screen/Templates.dart';
+import 'package:photo_frame/service/firebase_analytics_service.dart';
 import 'package:shimmer/shimmer.dart';
 
 int drawerContainer = 0;
@@ -26,6 +27,7 @@ bool isSpecialImageTap = false;
 List versionList = [];
 ScrollController tabScrollController = ScrollController();
 String templateName = "";
+String templateSearchName = "";
 
 List popularFetivalList = [
   {
@@ -284,11 +286,14 @@ class _HomePageState extends State<HomePage> {
                     ),
                     GestureDetector(
                       onTap: () {
+                        tabTap = 0;
                         Navigator.push(
                           context,
                           PageTransition(
                             type: PageTransitionType.rightToLeftWithFade,
-                            child: const PopularFestivalSeeAll(),
+                            child: const Templates(
+                              scrollPosition: 0,
+                            ),
                           ),
                         );
                       },
@@ -421,6 +426,8 @@ class _HomePageState extends State<HomePage> {
                         child: const Templates(scrollPosition: 0),
                       ),
                     );
+                    FirebaseAnalyticsService.instance.logEvent(
+                            name: 'view_all', parameters: {'name': 'Patriotic Day'});
                   },
                   isLoading: isLoadingSkeleton,
                 ),
@@ -452,12 +459,13 @@ class _HomePageState extends State<HomePage> {
                         : GestureDetector(
                             onTap: () async {
                               templateName = patrioticDayList[index]["title"];
+                              templateSearchName = patrioticDayList[index]["searchText"];
                               print(
-                                  "--------- Template Name --------- ${patrioticDayList[index]["title"]}");
+                                  "--------- Template Name --------- ${patrioticDayList[index]["searchText"]}");
                               isPatrioticImageTap = true;
                               isFestivalImageTap = false;
                               isSpecialImageTap = false;
-                              await imageDialog(context, index);
+                              await imageDialog(context, index,templateName: patrioticDayList[index]["searchText"]);
                               cropImage(index);
                               reviewCount(context);
                               setState(() {});
@@ -495,6 +503,8 @@ class _HomePageState extends State<HomePage> {
                         child: const Templates(scrollPosition: 320),
                       ),
                     );
+                    FirebaseAnalyticsService.instance.logEvent(
+                            name: 'view_all', parameters: {'name': 'Business Cards'});
                   },
                   isLoading: isLoadingSkeleton,
                 ),
@@ -526,6 +536,7 @@ class _HomePageState extends State<HomePage> {
                         : GestureDetector(
                             onTap: () {
                               templateName = visitingCardList[index]["title"];
+                              templateSearchName = visitingCardList[index]["searchText"];
                               print(
                                   "--------- Template Name --------- ${visitingCardList[index]["title"]}");
                               reviewCount(context);
@@ -575,6 +586,8 @@ class _HomePageState extends State<HomePage> {
                         child: const Templates(scrollPosition: 100),
                       ),
                     );
+                    FirebaseAnalyticsService.instance.logEvent(
+                            name: 'view_all', parameters: {'name': 'Festival Day'});
                   },
                   isLoading: isLoadingSkeleton,
                 ),
@@ -606,12 +619,13 @@ class _HomePageState extends State<HomePage> {
                         : GestureDetector(
                             onTap: () async {
                               templateName = festivalsEventList[index]["title"];
+                              templateSearchName = festivalsEventList[index]["searchText"];
                               print(
                                   "--------- Template Name --------- ${festivalsEventList[index]["title"]}");
                               isFestivalImageTap = true;
                               isPatrioticImageTap = false;
                               isSpecialImageTap = false;
-                              await imageDialog(context, index);
+                              await imageDialog(context, index,templateName: festivalsEventList[index]["searchText"]);
                               cropImage(index);
                               reviewCount(context);
                               setState(() {});
@@ -649,6 +663,8 @@ class _HomePageState extends State<HomePage> {
                         child: const Templates(scrollPosition: 250),
                       ),
                     );
+                    FirebaseAnalyticsService.instance.logEvent(
+                            name: 'view_all', parameters: {'name': 'Special Day'});
                   },
                   isLoading: isLoadingSkeleton,
                 ),
@@ -680,12 +696,13 @@ class _HomePageState extends State<HomePage> {
                         : GestureDetector(
                             onTap: () async {
                               templateName = specialDaysList[index]["title"];
+                              templateSearchName = specialDaysList[index]["searchText"];
                               print(
                                   "--------- Template Name --------- ${specialDaysList[index]["title"]}");
                               isSpecialImageTap = true;
                               isPatrioticImageTap = false;
                               isFestivalImageTap = false;
-                              await imageDialog(context, index);
+                              await imageDialog(context, index,templateName: specialDaysList[index]["searchText"]);
                               cropImage(index);
                               reviewCount(context);
                               setState(() {});

@@ -23,4 +23,24 @@ class SharedPreference {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     prefs.setBool(reviewCompleteKey, value);
   }
+
+  getSurveyCount() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    return prefs.getInt('survey_count') ?? 0;
+  }
+
+  setSurveyCount({required int count}) async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    prefs.setInt('survey_count', count);
+  }
+
+  isSurveyComplated() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    return prefs.getBool('survey_complated') ?? false;
+  }
+
+  setSurveyComplated({required bool isSurveyComplated}) async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    prefs.setBool('survey_complated', isSurveyComplated);
+  }
 }
