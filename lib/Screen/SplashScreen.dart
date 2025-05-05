@@ -5,9 +5,12 @@ import 'package:get/get.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:page_transition/page_transition.dart';
 import 'package:photo_frame/Contstant/AppColor.dart';
+import 'package:photo_frame/Contstant/Strings.dart';
 import 'package:photo_frame/Screen/BottomNavBar.dart';
 import 'package:photo_frame/Screen/GradientText.dart';
+import 'package:photo_frame/Screen/OnBoardingScreen.dart';
 import 'package:photo_frame/WebScreen/HomeScreenWeb.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class SplashScreen extends StatefulWidget {
   const SplashScreen({super.key});
@@ -23,22 +26,34 @@ class _SplashScreenState extends State<SplashScreen> {
     if (Get.size.shortestSide < 600) {
       SystemChrome.setPreferredOrientations([DeviceOrientation.portraitUp]);
     }
+
+    Future.delayed(
+      const Duration(seconds: 3),
+      () async {
+        final prefs = await SharedPreferences.getInstance();
+        final isOnboardingCompleted =
+            prefs.getBool('isOnboardingComplated') ?? false;
+
+        // if (!isOnboardingCompleted) {
+        //   final OnBoardingController onBoardingController =
+        //       Get.put(OnBoardingController());
+        //   await onBoardingController.precacheAssets(context);
+        // }
+
+        Navigator.pushReplacement(
+          context,
+          PageTransition(
+              type: PageTransitionType.rightToLeftWithFade,
+              child: isOnboardingCompleted
+                  ? (kIsWeb ? const HomeScreenWeb() : const BottomNavBarBar())
+                  : const OnBoardingScreen()),
+        );
+      },
+    );
   }
 
   @override
   Widget build(BuildContext context) {
-    Future.delayed(
-      const Duration(seconds: 3),
-      () async {
-        Navigator.pushReplacement(
-          context,
-          PageTransition(
-            type: PageTransitionType.rightToLeftWithFade,
-            child: kIsWeb ? const HomeScreenWeb() : const BottomNavBarBar(),
-          ),
-        );
-      },
-    );
     return Scaffold(
       backgroundColor: whiteColor,
       body: SafeArea(
@@ -55,7 +70,7 @@ class _SplashScreenState extends State<SplashScreen> {
                 height: 20,
               ),
               GradientText(
-                "Festival Poster",
+                festivalPoster,
                 style: GoogleFonts.reemKufiFun(
                   fontSize: 25,
                 ),

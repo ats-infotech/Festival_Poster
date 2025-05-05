@@ -4,6 +4,7 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:page_transition/page_transition.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:photo_frame/Contstant/AppColor.dart';
+import 'package:photo_frame/Contstant/Strings.dart';
 import 'package:photo_frame/Screen/PreviewImage.dart';
 
 class SaveImageShow extends StatefulWidget {
@@ -92,7 +93,7 @@ class _SaveImageShowState extends State<SaveImageShow> {
       appBar: AppBar(
         backgroundColor: kPrimeryColor,
         title: Text(
-          "Saved Images",
+          savedImages,
           style: GoogleFonts.poppins(
             color: whiteColor,
             fontSize: 15,
@@ -109,7 +110,7 @@ class _SaveImageShowState extends State<SaveImageShow> {
           : images.isEmpty
               ? Center(
                   child: Text(
-                    'No images found',
+                    noimagesfound,
                     style: GoogleFonts.poppins(),
                   ),
                 )

@@ -1,8 +1,12 @@
+import 'dart:developer';
+
 import 'package:firebase_core/firebase_core.dart';
+import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:photo_frame/Contstant/AppColor.dart';
 import 'package:photo_frame/Screen/SplashScreen.dart';
+import 'package:photo_frame/service/firebase_push_notification_service.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -14,7 +18,16 @@ Future<void> main() async {
       projectId: 'festival-poster-3ccbf',
     ),
   );
+  await FirebaseService.initialize();
+  FirebaseMessaging.instance.getToken().then(
+    (value) {
+      log("token ••••••••••••• $value");
+    },
+  );
   runApp(
+    // DevicePreview(
+    //   enabled: true,
+    //   builder: (context) =>
     GetMaterialApp(
       debugShowCheckedModeBanner: false,
       color: whiteColor,
@@ -28,5 +41,6 @@ Future<void> main() async {
       ),
       home: const SplashScreen(),
     ),
+    // ),
   );
 }

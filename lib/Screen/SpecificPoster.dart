@@ -122,7 +122,7 @@ class _SpecificPosterState extends State<SpecificPoster> {
           specificList.add(specificImage);
         }
       } else {
-        return null;
+        return;
       }
       setState(() {});
     }
@@ -130,7 +130,6 @@ class _SpecificPosterState extends State<SpecificPoster> {
 
   @override
   void initState() {
-    // TODO: implement initState
     super.initState();
     getSpecificPoster();
   }
@@ -214,7 +213,7 @@ class _SpecificPosterState extends State<SpecificPoster> {
                             onTap: () async {
                               templateName = specificList[index]["title"];
                               templateSearchName = specificList[index]["searchText"];
-                              print("----------- ${templateName}");
+                              print("----------- $templateName");
                               reviewCount(context);
                               await imageDialog(
                                 context,

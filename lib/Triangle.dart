@@ -18,7 +18,6 @@ class Triangle extends PaintContent {
   Offset B = Offset.zero;
   Offset C = Offset.zero;
 
-  @override
   String get contentType => 'Triangle';
 
   @override
@@ -56,11 +55,11 @@ class Triangle extends PaintContent {
   @override
   PaintContent copy() {
     return Triangle.data(
-      startPoint: this.startPoint,
-      A: this.A,
-      B: this.B,
-      C: this.C,
-      paint: this.paint,
+      startPoint: startPoint,
+      A: A,
+      B: B,
+      C: C,
+      paint: paint,
     );
   }
 
@@ -95,8 +94,8 @@ class Triangle extends PaintContent {
 extension OffsetJson on Offset {
   Map<String, double> toJson() {
     return {
-      'dx': this.dx,
-      'dy': this.dy,
+      'dx': dx,
+      'dy': dy,
     };
   }
 
@@ -108,7 +107,7 @@ extension OffsetJson on Offset {
 extension PaintJson on Paint {
   Map<String, dynamic> toJson() {
     return {
-      'color': this.color.value,
+      'color': color.value,
     };
   }
 }

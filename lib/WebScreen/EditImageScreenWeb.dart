@@ -2,6 +2,7 @@ import 'dart:ui' as ui;
 import 'package:crop_image/crop_image.dart';
 import 'package:flutter/services.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:photo_frame/Contstant/Strings.dart';
 import 'package:share_plus/share_plus.dart';
 import 'package:universal_html/html.dart' as html;
 import 'package:clipboard/clipboard.dart';
@@ -804,7 +805,7 @@ class _EditImageScreenWebState extends State<EditImageScreenWeb> {
                     padding: EdgeInsets.only(
                         top: w > 600 ? 5 : 10, right: w > 600 ? 20 : 15),
                     child: Text(
-                      "Festival Poster",
+                      festivalPoster,
                       style: GoogleFonts.poppins(
                         fontSize: w > 600 ? 20 : 14,
                         fontWeight: FontWeight.w600,
@@ -853,7 +854,7 @@ class _EditImageScreenWebState extends State<EditImageScreenWeb> {
                           ),
                           w > 670
                               ? Text(
-                                  "Share",
+                                  share,
                                   style: GoogleFonts.poppins(
                                     fontSize: 14,
                                     fontWeight: FontWeight.w600,
@@ -1342,7 +1343,7 @@ class _EditImageScreenWebState extends State<EditImageScreenWeb> {
                       ),
                     )
                   : Text(
-                      "All",
+                      all,
                       style: GoogleFonts.poppins(
                         fontSize: 18,
                         fontWeight: FontWeight.w600,
@@ -1444,7 +1445,7 @@ class _EditImageScreenWebState extends State<EditImageScreenWeb> {
                         children: [
                           seeMoreIndex == 1 || seeMoreIndex == 2
                               ? Container()
-                              : rowTextWeb("Patriotic Day",
+                              : rowTextWeb(patrioticDay,
                                   seeMoreIndex == 0 ? "" : "See More", () {
                                   setState(() {
                                     seeMoreIndex = 0;
@@ -1547,7 +1548,7 @@ class _EditImageScreenWebState extends State<EditImageScreenWeb> {
                           ),
                           seeMoreIndex == 0 || seeMoreIndex == 2
                               ? Container()
-                              : rowTextWeb("Festival Day",
+                              : rowTextWeb(festivalDay,
                                   seeMoreIndex == 1 ? "" : "See More", () {
                                   setState(() {
                                     seeMoreIndex = 1;
@@ -1654,7 +1655,7 @@ class _EditImageScreenWebState extends State<EditImageScreenWeb> {
                           ),
                           seeMoreIndex == 0 || seeMoreIndex == 1
                               ? Container()
-                              : rowTextWeb("Special Day",
+                              : rowTextWeb(specialDay,
                                   seeMoreIndex == 2 ? "" : "See More", () {
                                   setState(() {
                                     seeMoreIndex = 2;
@@ -1768,7 +1769,7 @@ class _EditImageScreenWebState extends State<EditImageScreenWeb> {
             ? Container(
                 margin: const EdgeInsets.only(left: 20, top: 30),
                 child: Text(
-                  "Filters",
+                  filters,
                   style: GoogleFonts.poppins(
                     fontSize: 18,
                     fontWeight: FontWeight.w600,
@@ -1798,61 +1799,61 @@ class _EditImageScreenWebState extends State<EditImageScreenWeb> {
                           children: [
                             filterWidget(
                                 Colors.transparent,
-                                "Normal",
+                                normal,
                                 selectedImagePosterPath ?? widget.image,
                                 140,
                                 140),
                             filterWidget(
                                 blackColor.withOpacity(0.4),
-                                "Lo-fi",
+                                lofi,
                                 selectedImagePosterPath ?? widget.image,
                                 140,
                                 140),
                             filterWidget(
                                 const Color(0xffEDEDED).withOpacity(0.2),
-                                "Inkwell",
+                                inkwell,
                                 selectedImagePosterPath ?? widget.image,
                                 140,
                                 140),
                             filterWidget(
                                 const Color(0xffFED914).withOpacity(0.18),
-                                "Warm",
+                                warm,
                                 selectedImagePosterPath ?? widget.image,
                                 140,
                                 140),
                             filterWidget(
                                 const Color(0xff9F2860).withOpacity(0.42),
-                                "Pop",
+                                pop,
                                 selectedImagePosterPath ?? widget.image,
                                 140,
                                 140),
                             filterWidget(
                                 const Color(0xff5DE147).withOpacity(0.2),
-                                "Nature",
+                                nature,
                                 selectedImagePosterPath ?? widget.image,
                                 140,
                                 140),
                             filterWidget(
                                 blackColor.withOpacity(0.58),
-                                "B&W",
+                                bandW,
                                 selectedImagePosterPath ?? widget.image,
                                 140,
                                 140),
                             filterWidget(
                                 const Color(0xff00A3FF).withOpacity(0.5),
-                                "Icy",
+                                icy,
                                 selectedImagePosterPath ?? widget.image,
                                 140,
                                 140),
                             filterWidget(
                                 const Color(0xffD49029).withOpacity(0.2),
-                                "Ludwig",
+                                ludwig,
                                 selectedImagePosterPath ?? widget.image,
                                 140,
                                 140),
                             filterWidget(
                                 const Color(0xff0066FF).withOpacity(0.2),
-                                "Ocean",
+                                ocean,
                                 selectedImagePosterPath ?? widget.image,
                                 140,
                                 140),
@@ -1876,51 +1877,51 @@ class _EditImageScreenWebState extends State<EditImageScreenWeb> {
                             shrinkWrap: true,
                             scrollDirection: Axis.horizontal,
                             children: [
-                              filterWidget(Colors.transparent, "Normal",
+                              filterWidget(Colors.transparent, normal,
                                   widget.image, 80, 80),
-                              filterWidget(blackColor.withOpacity(0.4), "Lo-fi",
+                              filterWidget(blackColor.withOpacity(0.4), lofi,
                                   widget.image, 80, 80),
                               filterWidget(
                                   const Color(0xffEDEDED).withOpacity(0.2),
-                                  "Inkwell",
+                                  inkwell,
                                   widget.image,
                                   80,
                                   80),
                               filterWidget(
                                   const Color(0xffFED914).withOpacity(0.18),
-                                  "Warm",
+                                  warm,
                                   widget.image,
                                   80,
                                   80),
                               filterWidget(
                                   const Color(0xff9F2860).withOpacity(0.42),
-                                  "Pop",
+                                  pop,
                                   widget.image,
                                   80,
                                   80),
                               filterWidget(
                                   const Color(0xff5DE147).withOpacity(0.2),
-                                  "Nature",
+                                  nature,
                                   widget.image,
                                   80,
                                   80),
-                              filterWidget(blackColor.withOpacity(0.58), "B&W",
+                              filterWidget(blackColor.withOpacity(0.58), bandW,
                                   widget.image, 80, 80),
                               filterWidget(
                                   const Color(0xff00A3FF).withOpacity(0.5),
-                                  "Icy",
+                                  icy,
                                   widget.image,
                                   80,
                                   80),
                               filterWidget(
                                   const Color(0xffD49029).withOpacity(0.2),
-                                  "Ludwig",
+                                  ludwig,
                                   widget.image,
                                   80,
                                   80),
                               filterWidget(
                                   const Color(0xff0066FF).withOpacity(0.2),
-                                  "Ocean",
+                                  ocean,
                                   widget.image,
                                   80,
                                   80),
@@ -2145,7 +2146,7 @@ class _EditImageScreenWebState extends State<EditImageScreenWeb> {
                         border: const OutlineInputBorder(
                           borderSide: BorderSide.none,
                         ),
-                        hintText: "Write A Text",
+                        hintText: writeAText,
                         hintStyle: GoogleFonts.poppins(
                           fontSize: 12,
                           fontWeight: FontWeight.w500,
@@ -3425,7 +3426,7 @@ class _EditImageScreenWebState extends State<EditImageScreenWeb> {
                                       color: kPrimeryColor,
                                     ),
                                     Text(
-                                      "Add Logo",
+                                      addLogo,
                                       style: GoogleFonts.poppins(
                                         fontSize: 16,
                                         color: kPrimeryColor,
@@ -3523,7 +3524,7 @@ class _EditImageScreenWebState extends State<EditImageScreenWeb> {
                                         color: kPrimeryColor,
                                       ),
                                       Text(
-                                        "Add Logo",
+                                        addLogo,
                                         style: GoogleFonts.poppins(
                                           fontSize: 16,
                                           color: kPrimeryColor,

@@ -10,6 +10,7 @@ import 'package:image_picker/image_picker.dart';
 import 'package:page_transition/page_transition.dart';
 import 'package:photo_frame/Contstant/AppColor.dart';
 import 'package:photo_frame/Contstant/CommonMethod.dart';
+import 'package:photo_frame/Contstant/Strings.dart';
 import 'package:photo_frame/Screen/GradientText.dart';
 import 'package:photo_frame/Screen/Templates.dart';
 import 'package:photo_frame/WebScreen/DrawerScreenWeb.dart';
@@ -62,27 +63,27 @@ class _HomeScreenWebState extends State<HomeScreenWeb>
   int? productHelpHoverIndex;
 
   List categoryList = [
-    "All",
-    "Patriotic Day",
+    all,
+    patrioticDay,
     "Festivals Day",
-    "Special Days",
+    specialDay,
     "Visiting Card",
-    "Transparent Visiting Card",
-    "Premium Visiting Card",
-    "Folded Visiting Cards",
-    "Photographic Visiting Cards",
+    transparentVisitingCard,
+    premiumVisitingCard,
+    foldedVisitingCards,
+    photographicVisitingCards,
   ];
   Map<String, List<String>> footerList = {
     "Posters": [
-      "Patriotic Day",
+      patrioticDay,
       "Festivals Day",
-      "Special Day",
+      specialDay,
     ],
     "Business Card": [
-      "Transparent Visiting Card",
-      "Premium Visiting Card",
-      "Folded Visiting Cards",
-      "Photographic Visiting Cards",
+      transparentVisitingCard,
+      premiumVisitingCard,
+      foldedVisitingCards,
+      photographicVisitingCards,
     ],
     "Links": [
       "Support",
@@ -1208,7 +1209,7 @@ class _HomeScreenWebState extends State<HomeScreenWeb>
                     ),
                     constraints.maxWidth > 1000
                         ? Text(
-                            "Festival Poster",
+                            festivalPoster,
                             style: GoogleFonts.reemKufiFun(
                               fontSize: 20,
                               fontWeight: FontWeight.w400,
@@ -1278,7 +1279,7 @@ class _HomeScreenWebState extends State<HomeScreenWeb>
                                 child: Row(
                                   children: [
                                     Text(
-                                      "Templates",
+                                      templates,
                                       style: GoogleFonts.poppins(
                                         fontSize: 18,
                                         fontWeight: FontWeight.w600,
@@ -2685,7 +2686,7 @@ class _HomeScreenWebState extends State<HomeScreenWeb>
             Container(
               margin: const EdgeInsets.only(top: 10),
               child: Text(
-                "Festival Poster",
+                festivalPoster,
                 style: GoogleFonts.reemKufiFun(
                   fontSize: 20,
                   fontWeight: FontWeight.w400,

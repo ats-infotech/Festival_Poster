@@ -7,6 +7,7 @@ import 'package:page_transition/page_transition.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:photo_frame/Contstant/AppColor.dart';
 import 'package:photo_frame/Contstant/CommonMethod.dart';
+import 'package:photo_frame/Contstant/Strings.dart';
 import 'package:photo_frame/Screen/HomePage.dart';
 import 'package:photo_frame/Screen/HomeSearchPage.dart';
 import 'package:photo_frame/Screen/SpecificPoster.dart';
@@ -163,7 +164,7 @@ class _PopularFestivalSeeAllState extends State<PopularFestivalSeeAll> {
                         icon: const Icon(Icons.keyboard_voice_outlined),
                         color: greyColor,
                       ),
-                      hintText: "Search Your Poster",
+                      hintText: searchYourPoster,
                       hintStyle: GoogleFonts.poppins(
                         fontSize: 12,
                         fontWeight: FontWeight.w500,

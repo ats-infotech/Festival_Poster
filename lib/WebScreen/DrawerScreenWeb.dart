@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:page_transition/page_transition.dart';
 import 'package:photo_frame/Contstant/AppColor.dart';
+import 'package:photo_frame/Contstant/Strings.dart';
 import 'package:photo_frame/Screen/GradientText.dart';
 import 'package:photo_frame/WebScreen/SpecificPosterWeb.dart';
 
@@ -20,10 +21,10 @@ List templateList = [
   "Marry Christmas",
 ];
 List businessCardList = [
-  "Transparent Visiting Card",
-  "Premium Visiting Card",
-  "Folded Visiting Cards",
-  "Photographic Visiting Cards",
+  transparentVisitingCard,
+  premiumVisitingCard,
+  foldedVisitingCards,
+  photographicVisitingCards,
 ];
 
 class DrawerScreenWeb extends StatefulWidget {
@@ -69,7 +70,7 @@ class _DrawerScreenWebState extends State<DrawerScreenWeb> {
                           ),
                           constraints.maxWidth > 300
                               ? GradientText(
-                                  "Festival Poster",
+                                  festivalPoster,
                                   gradient: const LinearGradient(
                                     colors: [
                                       Color(0xff276EB6),
@@ -124,7 +125,7 @@ class _DrawerScreenWebState extends State<DrawerScreenWeb> {
                     width: double.infinity,
                     child: Column(
                       children: [
-                        Container(
+                        SizedBox(
                           width: double.infinity,
                           child: Wrap(
                             alignment: WrapAlignment.spaceBetween,
@@ -143,7 +144,7 @@ class _DrawerScreenWebState extends State<DrawerScreenWeb> {
                                     width: 20,
                                   ),
                                   Text(
-                                    "Templates",
+                                    templates,
                                     style: GoogleFonts.poppins(
                                       fontSize: 14,
                                       fontWeight: FontWeight.w500,
@@ -240,7 +241,7 @@ class _DrawerScreenWebState extends State<DrawerScreenWeb> {
                     width: double.infinity,
                     child: Column(
                       children: [
-                        Container(
+                        SizedBox(
                           width: double.infinity,
                           child: Wrap(
                             alignment: WrapAlignment.spaceBetween,

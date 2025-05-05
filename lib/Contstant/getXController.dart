@@ -3,14 +3,13 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter_image_compress/flutter_image_compress.dart';
 import 'package:get/get.dart';
-import 'package:get/get_rx/get_rx.dart';
 import 'package:get/state_manager.dart';
 import 'package:photo_frame/Contstant/AppColor.dart';
 import 'package:photo_frame/Contstant/itemModel.dart';
 
 class EditController extends GetxController {
   RxInt functionTap = (-1).obs;
-  RxBool isBoxTap = false.obs;
+  // RxBool isBoxTap = false.obs;
   Rx<Color> textBlackColor = blackColor.obs;
   Rx<Color> filterContainerColor = transparentColor.obs;
   Rx<Color> forgroundStrokeColor = blackColor.obs;
@@ -20,8 +19,8 @@ class EditController extends GetxController {
   Rx<FontStyle> fontStyle = FontStyle.normal.obs;
   FocusNode focusNode = FocusNode();
   RxInt logoIndex = 1.obs;
-  var sides = 7;
-  var radius = 100.0;
+  // var sides = 7;
+  // var radius = 100.0;
   var pickLogo = Rx<File?>(null);
   Rx<TextEditingController> textController = TextEditingController().obs;
   RxString selectedFontFamily = 'Poppins'.obs;
@@ -91,11 +90,11 @@ class EditController extends GetxController {
     },
   ].obs;
 
-  RxList<String> titleList = [
-    "Sub-Title",
-    "Body Text",
-    "Caption",
-  ].obs;
+  // RxList<String> titleList = [
+  //   "Sub-Title",
+  //   "Body Text",
+  //   "Caption",
+  // ].obs;
 
   RxList logotypeList = [
     "assets/images/logoNone.png",

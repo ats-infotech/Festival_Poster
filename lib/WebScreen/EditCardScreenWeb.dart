@@ -17,6 +17,7 @@ import 'package:image_picker/image_picker.dart';
 import 'package:photo_frame/Contstant/AppColor.dart';
 import 'package:photo_frame/Contstant/CommonMethod.dart';
 import 'package:photo_frame/Contstant/EditableTextItem.dart';
+import 'package:photo_frame/Contstant/Strings.dart';
 import 'package:photo_frame/Contstant/getXController.dart';
 import 'package:photo_frame/Contstant/itemModel.dart';
 import 'package:photo_frame/Screen/EditImageScreen.dart';
@@ -777,7 +778,7 @@ class _EditCardSCreenWebState extends State<EditCardSCreenWeb> {
                     padding: EdgeInsets.only(
                         top: w > 600 ? 5 : 10, right: w > 600 ? 20 : 15),
                     child: Text(
-                      "Festival Poster",
+                      festivalPoster,
                       style: GoogleFonts.poppins(
                         fontSize: w > 600 ? 20 : 14,
                         fontWeight: FontWeight.w600,
@@ -826,7 +827,7 @@ class _EditCardSCreenWebState extends State<EditCardSCreenWeb> {
                           ),
                           w > 670
                               ? Text(
-                                  "Share",
+                                  share,
                                   style: GoogleFonts.poppins(
                                     fontSize: 14,
                                     fontWeight: FontWeight.w600,
@@ -1061,7 +1062,7 @@ class _EditCardSCreenWebState extends State<EditCardSCreenWeb> {
                       ),
                     )
                   : Text(
-                      "All",
+                      all,
                       style: GoogleFonts.poppins(
                         fontSize: 18,
                         fontWeight: FontWeight.w600,
@@ -1163,7 +1164,7 @@ class _EditCardSCreenWebState extends State<EditCardSCreenWeb> {
                                   seeMoreIndex == 2 ||
                                   seeMoreIndex == 3
                               ? Container()
-                              : rowTextWeb("Folded Visiting Cards",
+                              : rowTextWeb(foldedVisitingCards,
                                   seeMoreIndex == 0 ? "" : "See More", () {
                                   setState(() {
                                     seeMoreIndex = 0;
@@ -1271,7 +1272,7 @@ class _EditCardSCreenWebState extends State<EditCardSCreenWeb> {
                                   seeMoreIndex == 2 ||
                                   seeMoreIndex == 3
                               ? Container()
-                              : rowTextWeb("Transparent Visiting Card",
+                              : rowTextWeb(transparentVisitingCard,
                                   seeMoreIndex == 1 ? "" : "See More", () {
                                   setState(() {
                                     seeMoreIndex = 1;
@@ -1379,7 +1380,7 @@ class _EditCardSCreenWebState extends State<EditCardSCreenWeb> {
                                   seeMoreIndex == 1 ||
                                   seeMoreIndex == 3
                               ? Container()
-                              : rowTextWeb("Premium Visiting Card",
+                              : rowTextWeb(premiumVisitingCard,
                                   seeMoreIndex == 2 ? "" : "See More", () {
                                   setState(() {
                                     seeMoreIndex = 2;
@@ -1487,7 +1488,7 @@ class _EditCardSCreenWebState extends State<EditCardSCreenWeb> {
                                   seeMoreIndex == 1 ||
                                   seeMoreIndex == 2
                               ? Container()
-                              : rowTextWeb("Photographic Visiting Cards",
+                              : rowTextWeb(photographicVisitingCards,
                                   seeMoreIndex == 3 ? "" : "See More", () {
                                   setState(() {
                                     seeMoreIndex = 3;
@@ -1686,7 +1687,7 @@ class _EditCardSCreenWebState extends State<EditCardSCreenWeb> {
                                         ),
                                         child: Center(
                                           child: Text(
-                                            "Front Side",
+                                            frontSide,
                                             style: GoogleFonts.poppins(
                                               fontSize: 14,
                                               fontWeight: FontWeight.w600,
@@ -1722,7 +1723,7 @@ class _EditCardSCreenWebState extends State<EditCardSCreenWeb> {
                                             ),
                                             child: Center(
                                               child: Text(
-                                                "Back Side",
+                                                backSide,
                                                 style: GoogleFonts.poppins(
                                                   fontSize: 14,
                                                   fontWeight: FontWeight.w600,
@@ -2055,7 +2056,7 @@ class _EditCardSCreenWebState extends State<EditCardSCreenWeb> {
                         border: const OutlineInputBorder(
                           borderSide: BorderSide.none,
                         ),
-                        hintText: "Write A Text",
+                        hintText: writeAText,
                         hintStyle: GoogleFonts.poppins(
                           fontSize: 12,
                           fontWeight: FontWeight.w500,
@@ -2899,7 +2900,7 @@ class _EditCardSCreenWebState extends State<EditCardSCreenWeb> {
                                       color: kPrimeryColor,
                                     ),
                                     Text(
-                                      "Add Logo",
+                                      addLogo,
                                       style: GoogleFonts.poppins(
                                         fontSize: 16,
                                         color: kPrimeryColor,
@@ -3068,7 +3069,7 @@ class _EditCardSCreenWebState extends State<EditCardSCreenWeb> {
                                         color: kPrimeryColor,
                                       ),
                                       Text(
-                                        "Add Logo",
+                                        addLogo,
                                         style: GoogleFonts.poppins(
                                           fontSize: 16,
                                           color: kPrimeryColor,
@@ -3089,7 +3090,7 @@ class _EditCardSCreenWebState extends State<EditCardSCreenWeb> {
   }
 
   Widget logoImage() {
-    Offset touchPosition = Offset.zero;
+
 
     // onPanStart(DragStartDetails details) {
     //   if (shareCardStates[isFrontTap] == true) {
@@ -3180,7 +3181,6 @@ class _EditCardSCreenWebState extends State<EditCardSCreenWeb> {
       } else {
         editController.isRotate.value = false;
       }
-      touchPosition = details.localPosition;
     }
 
     onPanUpdate(DragUpdateDetails details) {
@@ -4579,7 +4579,6 @@ class _EditCardSCreenWebState extends State<EditCardSCreenWeb> {
   }
 
   Widget qrCodeItem(Uint8List? qrLogo) {
-    Offset touchPosition = Offset.zero;
 
     onPanStart(DragStartDetails details) {
       if (shareCardStates[isFrontTap] == true) {
@@ -4600,7 +4599,6 @@ class _EditCardSCreenWebState extends State<EditCardSCreenWeb> {
       } else {
         editController.isRotate.value = false;
       }
-      touchPosition = details.localPosition;
     }
 
     onPanUpdate(DragUpdateDetails details) {
@@ -4914,27 +4912,25 @@ class _EditCardSCreenWebState extends State<EditCardSCreenWeb> {
               indent: 10,
               endIndent: 10,
             ),
-            Container(
-              child: GestureDetector(
-                onTap: () async {
-                  var pickLogo =
-                      await picker.pickImage(source: ImageSource.gallery);
-                  isFrontTap
-                      ? qrFrontLogoBytes = await pickLogo!.readAsBytes()
-                      : qrBackLogoBytes = await pickLogo!.readAsBytes();
-                  if (isFrontTap) {
-                    if (qrFrontLogoBytes != null) {
-                      print("------- QR Front Logo Pick ---------");
-                    }
-                  } else {
-                    if (qrBackLogoBytes != null) {
-                      print("------- QR Back Logo Pick ---------");
-                    }
+            GestureDetector(
+              onTap: () async {
+                var pickLogo =
+                    await picker.pickImage(source: ImageSource.gallery);
+                isFrontTap
+                    ? qrFrontLogoBytes = await pickLogo!.readAsBytes()
+                    : qrBackLogoBytes = await pickLogo!.readAsBytes();
+                if (isFrontTap) {
+                  if (qrFrontLogoBytes != null) {
+                    print("------- QR Front Logo Pick ---------");
                   }
-                  setState(() {});
-                },
-                child: const Icon(Icons.image),
-              ),
+                } else {
+                  if (qrBackLogoBytes != null) {
+                    print("------- QR Back Logo Pick ---------");
+                  }
+                }
+                setState(() {});
+              },
+              child: const Icon(Icons.image),
             ),
             VerticalDivider(
               color: greyColor.withOpacity(0.5),

@@ -1,6 +1,5 @@
 import 'dart:io';
 import 'dart:math';
-import 'dart:typed_data';
 import 'dart:ui' as ui;
 import 'dart:ui';
 import 'package:crop_image/crop_image.dart';
@@ -12,6 +11,7 @@ import 'package:path_provider/path_provider.dart';
 import 'package:get/get.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:photo_frame/Contstant/AppColor.dart';
+import 'package:photo_frame/Contstant/Strings.dart';
 import 'package:photo_frame/Contstant/getXController.dart';
 import 'package:photo_frame/Contstant/itemModel.dart';
 import 'package:photo_frame/Contstant/CommonMethod.dart';
@@ -180,7 +180,7 @@ class _EditImageScreenState extends State<EditImageScreen> {
               print("--------------- image Path --------- $image");
               setState(() {});
             },
-            child: const Text('Done'),
+            child: const Text(done),
           ),
         ],
       );
@@ -271,6 +271,8 @@ class _EditImageScreenState extends State<EditImageScreen> {
   }
 
   List<double> _contrastMatrix(double contrast) {
+    contrast = (contrast * 0.5) + 0.5;
+
     return [
       contrast,
       0,
@@ -294,6 +296,30 @@ class _EditImageScreenState extends State<EditImageScreen> {
       0,
     ];
   }
+  // List<double> _contrastMatrix(double contrast) {
+  //   return [
+  //     contrast,
+  //     0,
+  //     0,
+  //     0,
+  //     (1 - contrast) * 128,
+  //     0,
+  //     contrast,
+  //     0,
+  //     0,
+  //     (1 - contrast) * 128,
+  //     0,
+  //     0,
+  //     contrast,
+  //     0,
+  //     (1 - contrast) * 128,
+  //     0,
+  //     0,
+  //     0,
+  //     1,
+  //     0,
+  //   ];
+  // }
 
   Widget imageRotate() {
     return Obx(
@@ -314,8 +340,8 @@ class _EditImageScreenState extends State<EditImageScreen> {
               child: Slider(
                 activeColor: kPrimeryColor,
                 value: editController.angle.value,
-                min: -6.283,
-                max: 6.283,
+                min: -3.1415,
+                max: 3.1415,
                 // label: "1",
                 label:
                     "${(editController.angle.value * (180 / pi)).toStringAsFixed(1)}°",
@@ -488,7 +514,7 @@ class _EditImageScreenState extends State<EditImageScreen> {
                             size: 20,
                           ),
                           Text(
-                            "Add Logo",
+                            addLogo,
                             style: GoogleFonts.poppins(
                               // fontSize: 16,
                               fontSize: 10,
@@ -576,7 +602,7 @@ class _EditImageScreenState extends State<EditImageScreen> {
         backgroundColor: kPrimeryColor,
         centerTitle: true,
         title: Text(
-          "Preview",
+          preview,
           style: GoogleFonts.poppins(
             color: whiteColor,
             fontSize: 15,
@@ -1068,7 +1094,7 @@ class _EditImageScreenState extends State<EditImageScreen> {
                                                       color: blackColor,
                                                     ),
                                                     // minScale: 0.2,
-                                                    // maxScale: 3.0,
+                                                    maxScale: 2.0,
                                                     imageProvider: FileImage(
                                                         widget.cropImage),
                                                     disableGestures: false,
@@ -1865,7 +1891,7 @@ class _EditImageScreenState extends State<EditImageScreen> {
                                                               .value = true;
                                                         },
                                                         child: Text(
-                                                          "Write A Text",
+                                                          writeAText,
                                                           style: GoogleFonts
                                                               .poppins(
                                                             fontSize: 16,

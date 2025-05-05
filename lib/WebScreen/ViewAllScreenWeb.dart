@@ -4,6 +4,7 @@ import 'package:gradient_borders/box_borders/gradient_box_border.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:page_transition/page_transition.dart';
 import 'package:photo_frame/Contstant/AppColor.dart';
+import 'package:photo_frame/Contstant/Strings.dart';
 import 'package:photo_frame/Screen/Templates.dart';
 import 'package:photo_frame/WebScreen/EditCardScreenWeb.dart';
 import 'package:photo_frame/WebScreen/EditImageScreenWeb.dart';
@@ -22,15 +23,15 @@ class _ViewAllScreenWebState extends State<ViewAllScreenWeb> {
   int? hoverIndex;
   int currentIndex = 0;
   List tabList = [
-    "All",
-    "Patriotic Day",
+    all,
+    patrioticDay,
     "Festivals Day",
-    "Special Days",
+    specialDay,
     "Visiting Card",
-    "Transparent Visiting Card",
-    "Premium Visiting Card",
-    "Folded Visiting Cards",
-    "Photographic Visiting Cards",
+    transparentVisitingCard,
+    premiumVisitingCard,
+    foldedVisitingCards,
+    photographicVisitingCards,
   ];
   @override
   Widget build(BuildContext context) {

@@ -1,4 +1,3 @@
-import 'dart:developer';
 import 'dart:io';
 import 'package:auto_animated/auto_animated.dart';
 import 'package:flutter/material.dart';
@@ -8,6 +7,7 @@ import 'package:image_picker/image_picker.dart';
 import 'package:page_transition/page_transition.dart';
 import 'package:photo_frame/Contstant/AppColor.dart';
 import 'package:photo_frame/Contstant/CommonMethod.dart';
+import 'package:photo_frame/Contstant/Strings.dart';
 import 'package:photo_frame/Screen/EditImageScreen.dart';
 import 'package:photo_frame/Screen/EditVisitingCard.dart';
 import 'package:photo_frame/Screen/HomePage.dart';
@@ -37,13 +37,7 @@ class Templates extends StatefulWidget {
 }
 
 class _TemplatesState extends State<Templates> {
-  List tabList = [
-    "All",
-    "Patriotic Day",
-    "Festivals Event",
-    "Special Days",
-    "Cards"
-  ];
+  List tabList = [all, patrioticDay, festivalsEvent, specialDay, card];
   bool isSerachTap = false;
   ImagePicker picker = ImagePicker();
 
@@ -73,7 +67,7 @@ class _TemplatesState extends State<Templates> {
           ),
           iosUiSettings: const IOSUiSettings(
             title: 'Edit',
-        ),
+          ),
         );
         if (croppedFile != null) {
           setState(() {
@@ -169,7 +163,7 @@ class _TemplatesState extends State<Templates> {
         backgroundColor: kPrimeryColor,
         centerTitle: true,
         title: Text(
-          "Templates",
+          templates,
           style: GoogleFonts.poppins(
             color: whiteColor,
             fontSize: 15,
@@ -266,7 +260,8 @@ class _TemplatesState extends State<Templates> {
                             onChanged: (value) {
                               serchData(value);
                               FirebaseAnalyticsService.instance.logEvent(
-                          name: 'search_template', parameters: {"query": value});
+                                  name: 'search_template',
+                                  parameters: {"query": value});
                               setState(() {});
                             },
                           ),
@@ -343,14 +338,16 @@ class _TemplatesState extends State<Templates> {
                                     return GestureDetector(
                                       onTap: () async {
                                         templateName = dataList[index]["title"];
-                                        templateSearchName = dataList[index]["searchText"];
+                                        templateSearchName =
+                                            dataList[index]["searchText"];
                                         print(
-                                            " ---------- Template Name -------- ${templateName}");
+                                            " ---------- Template Name -------- $templateName");
                                         reviewCount(context);
                                         await imageDialog(
                                           context,
                                           index,
-                                          templateName: dataList[index]["searchText"],
+                                          templateName: dataList[index]
+                                              ["searchText"],
                                         );
                                         cropImage(index);
                                         setState(() {});
@@ -417,11 +414,12 @@ class _TemplatesState extends State<Templates> {
                                                   focusNode.unfocus();
                                                   reviewCount(context);
                                                   await imageDialog(
-                                                    context,
-                                                    index,
-                                                    templateName: dataList[index]['searchText']
-                                                    // setState,
-                                                  );
+                                                      context, index,
+                                                      templateName:
+                                                          dataList[index]
+                                                              ['searchText']
+                                                      // setState,
+                                                      );
                                                   cropImage(index);
                                                 },
                                                 child: Container(
@@ -514,11 +512,12 @@ class _TemplatesState extends State<Templates> {
                                                       patrioticDayList[index]
                                                           ["searchText"];
                                                   print(
-                                                      " ---------- Template Name -------- ${templateName}");
+                                                      " ---------- Template Name -------- $templateName");
                                                   reviewCount(context);
                                                   await imageDialog(
-                                                    templateName: patrioticDayList[index]
-                                                          ["searchText"],
+                                                    templateName:
+                                                        patrioticDayList[index]
+                                                            ["searchText"],
                                                     context,
                                                     index,
                                                   );
@@ -612,13 +611,16 @@ class _TemplatesState extends State<Templates> {
                                                               index]["title"];
                                                       templateSearchName =
                                                           festivalsEventList[
-                                                              index]["searchText"];
+                                                                  index]
+                                                              ["searchText"];
                                                       print(
-                                                          " ---------- Template Name -------- ${templateName}");
+                                                          " ---------- Template Name -------- $templateName");
                                                       reviewCount(context);
                                                       await imageDialog(
-                                                        templateName: festivalsEventList[
-                                                              index]["searchText"],
+                                                        templateName:
+                                                            festivalsEventList[
+                                                                    index]
+                                                                ["searchText"],
                                                         context,
                                                         index,
                                                       );
@@ -725,15 +727,16 @@ class _TemplatesState extends State<Templates> {
                                                                   ["title"];
                                                           templateSearchName =
                                                               specialDaysList[
-                                                                      index]
-                                                                  ["searchText"];
+                                                                      index][
+                                                                  "searchText"];
                                                           print(
-                                                              " ---------- Template Name -------- ${templateName}");
+                                                              " ---------- Template Name -------- $templateName");
                                                           reviewCount(context);
                                                           await imageDialog(
-                                                            templateName: specialDaysList[
-                                                                      index]
-                                                                  ["searchText"],
+                                                            templateName:
+                                                                specialDaysList[
+                                                                        index][
+                                                                    "searchText"],
                                                             context,
                                                             index,
                                                           );
@@ -840,10 +843,10 @@ class _TemplatesState extends State<Templates> {
                                                                   ["title"];
                                                           templateSearchName =
                                                               visitingCardList[
-                                                                      index]
-                                                                  ["searchText"];
+                                                                      index][
+                                                                  "searchText"];
                                                           print(
-                                                              " ---------- Template Name -------- ${templateName}");
+                                                              " ---------- Template Name -------- $templateName");
                                                           reviewCount(context);
                                                           Navigator.push(
                                                             context,

@@ -2,6 +2,7 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:photo_frame/Contstant/AppColor.dart';
+import 'package:photo_frame/Contstant/Strings.dart';
 import 'package:photo_view/photo_view.dart';
 import 'package:share_extend/share_extend.dart';
 import 'package:share_plus/share_plus.dart';
@@ -55,7 +56,7 @@ class _PreviewImageState extends State<PreviewImage> {
       appBar: AppBar(
         backgroundColor: blackColor,
         title: Text(
-          "Preview",
+          preview,
           style: GoogleFonts.poppins(
             color: whiteColor,
             fontSize: 15,

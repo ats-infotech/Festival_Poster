@@ -37,7 +37,8 @@ dependencies:
   cupertino_icons: ^1.0.6
   image_picker: ^1.1.2
   image_cropper:
-  photo_view: ^0.15.0
+  # photo_view: ^0.15.0
+  photo_view: ^0.14.0
   google_fonts: any
   carousel_slider: ^5.0.0
   share_extend: ^2.0.0
@@ -65,7 +66,14 @@ dependencies:
   permission_handler: ^11.3.1
   firebase_analytics:
   firebase_core:
-  flutter_email_sender: ^7.0.0
+  cloud_firestore:
+  image_gallery_saver: ^2.0.3 
+  zoom_widget: ^2.0.1
+  # device_preview: ^1.2.0
+  firebase_messaging: ^14.7.19
+  flutter_local_notifications: ^18.0.1
+  # video_player: ^2.9.5
+  # lottie: ^3.0.0
 
 dev_dependencies:
   flutter_test:
@@ -94,6 +102,7 @@ flutter:
     - assets/images/
     - assets/images.json
     - assets/version.json
+    # - assets/lottie/
   #   - images/a_dot_burr.jpeg
   #   - images/a_dot_ham.jpeg
 

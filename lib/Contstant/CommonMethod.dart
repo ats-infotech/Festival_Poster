@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:io';
 import 'dart:math';
 import 'package:clipboard/clipboard.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:dropdown_button2/dropdown_button2.dart';
 import 'package:flex_color_picker/flex_color_picker.dart';
 import 'package:flutter/cupertino.dart';
@@ -15,13 +16,13 @@ import 'package:path_provider/path_provider.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:photo_frame/Contstant/AppColor.dart';
 import 'package:photo_frame/Contstant/EditableTextItem.dart';
+import 'package:photo_frame/Contstant/Strings.dart';
 import 'package:photo_frame/Contstant/sharedPreference.dart';
 import 'package:photo_frame/Screen/EditImageScreen.dart';
 import 'package:photo_frame/Screen/EditVisitingCard.dart';
 import 'package:photo_frame/Screen/HomePage.dart';
 import 'package:photo_frame/Screen/Templates.dart';
 import 'package:photo_frame/WebScreen/EditImageScreenWeb.dart';
-import 'package:photo_frame/service/email_service.dart';
 import 'package:photo_frame/service/firebase_analytics_service.dart';
 import 'package:shimmer/shimmer.dart';
 import 'package:url_launcher/url_launcher.dart';
@@ -113,6 +114,10 @@ List drawerList = [
     "icon": "assets/images/drawerSaveImage.png",
   },
   {
+    "name": "Personal Info",
+    "icon": "assets/images/personal_info.png",
+  },
+  {
     "name": "Feedback",
     "icon": "assets/images/survey.png",
   },
@@ -123,9 +128,9 @@ List drawerList = [
 ];
 
 // Image Pick Dialog
-imageDialog(BuildContext context, int index,{required String templateName}) {
-    FirebaseAnalyticsService.instance.logEvent(
-                            name: 'template_selection', parameters: {'name': templateName});
+imageDialog(BuildContext context, int index, {required String templateName}) {
+  FirebaseAnalyticsService.instance
+      .logEvent(name: 'template_selection', parameters: {'name': templateName});
   return showGeneralDialog(
     barrierDismissible: false,
     context: context,
@@ -410,7 +415,7 @@ void showInternetDialog(BuildContext context) {
                 Navigator.of(context).pop();
                 Navigator.of(context).pop();
               },
-              child: const Text("OK"),
+              child: const Text(ok),
             ),
           ],
         );
@@ -484,7 +489,7 @@ void showUpdateDialog(BuildContext context) {
           ),
           versionList[0]["forceUpdate"] == false
               ? TextButton(
-                  child: const Text('Cancel'),
+                  child: const Text(cancel),
                   onPressed: () {
                     Navigator.of(context).pop();
                   },
@@ -583,7 +588,7 @@ showFeedBackDialog(BuildContext context) {
       return Container(
         margin: const EdgeInsets.symmetric(horizontal: 20),
         child: Text(
-          "Give Us Feedback",
+          giveUsFeedback,
           textAlign: TextAlign.center,
           style: GoogleFonts.poppins(
             fontSize: 16,
@@ -737,11 +742,12 @@ showFeedBackDialog(BuildContext context) {
                           isSubmitButton == false
                               ? SizedBox(
                                   width: 65 * w,
+                                  height: 4 * h,
                                   child: GridView.builder(
                                     padding: EdgeInsets.zero,
                                     physics:
                                         const NeverScrollableScrollPhysics(),
-                                    shrinkWrap: true,
+                                    // shrinkWrap: true,
                                     itemCount: 5,
                                     gridDelegate:
                                         SliverGridDelegateWithFixedCrossAxisCount(
@@ -766,7 +772,7 @@ showFeedBackDialog(BuildContext context) {
                                 )
                               : rating <= 4
                                   ? Text(
-                                      'Your feedback has been submitted.',
+                                      yourfeedbackhasbeensubmitted,
                                       textAlign: TextAlign.center,
                                       style: GoogleFonts.poppins(
                                         fontSize: 14,
@@ -790,6 +796,12 @@ showFeedBackDialog(BuildContext context) {
                                       ? () {
                                           setState(() {
                                             isSubmitButton = true;
+
+                                            if (rating < 4) {
+                                              FirebaseFirestore.instance
+                                                  .collection('review')
+                                                  .add({"rating": rating + 1});
+                                            }
                                           });
                                         }
                                       : null,
@@ -804,7 +816,7 @@ showFeedBackDialog(BuildContext context) {
                                     width: 75 * w,
                                     child: Center(
                                       child: Text(
-                                        'Submit',
+                                        submit,
                                         style: GoogleFonts.poppins(
                                           color: whiteColor,
                                           fontSize: 16,
@@ -836,7 +848,7 @@ showFeedBackDialog(BuildContext context) {
                                         width: 50 * w,
                                         child: Center(
                                           child: Text(
-                                            'Done',
+                                            done,
                                             style: GoogleFonts.poppins(
                                               fontSize: 16,
                                               color: whiteColor,
@@ -865,7 +877,7 @@ showFeedBackDialog(BuildContext context) {
                                             },
                                             child: Center(
                                               child: Text(
-                                                "CANCEL",
+                                                cancel,
                                                 style: GoogleFonts.poppins(
                                                   fontSize: 14,
                                                   fontWeight: FontWeight.w600,
@@ -1042,7 +1054,7 @@ imageSaveSuccessDialog(BuildContext context, onTap) {
                     margin: const EdgeInsets.symmetric(horizontal: 20),
                     width: double.infinity,
                     child: Text(
-                      "Your images have been saved successfully",
+                      imageSaveDescription,
                       textAlign: TextAlign.center,
                       maxLines: 1,
                       style: GoogleFonts.poppins(
@@ -1055,7 +1067,7 @@ imageSaveSuccessDialog(BuildContext context, onTap) {
                     height: 5,
                   ),
                   Text(
-                    "Please check your Gallery",
+                    checkGallery,
                     style: GoogleFonts.poppins(
                       fontSize: 12,
                       fontWeight: FontWeight.bold,
@@ -1084,7 +1096,7 @@ imageSaveSuccessDialog(BuildContext context, onTap) {
                             width: 37 * w,
                             child: Center(
                               child: Text(
-                                'OK',
+                                ok,
                                 style: GoogleFonts.poppins(
                                   color: whiteColor,
                                   fontSize: 16,
@@ -1105,7 +1117,7 @@ imageSaveSuccessDialog(BuildContext context, onTap) {
                             width: 37 * w,
                             child: Center(
                               child: Text(
-                                'Share',
+                                share,
                                 style: GoogleFonts.poppins(
                                   color: whiteColor,
                                   fontSize: 16,
@@ -1677,30 +1689,28 @@ Widget strokeTextFeture(BuildContext context) {
                                   ),
                                 );
                               }).toList(),
-                              hint: Container(
-                                child: Text.rich(
-                                  TextSpan(
-                                    children: [
-                                      TextSpan(
-                                        text: editController
-                                            .selectedStrokeWidth.value
-                                            .toStringAsFixed(0),
-                                        style: GoogleFonts.poppins(
-                                          fontWeight: FontWeight.bold,
-                                          color: blackColor,
-                                          fontSize: 13,
-                                        ),
+                              hint: Text.rich(
+                                TextSpan(
+                                  children: [
+                                    TextSpan(
+                                      text: editController
+                                          .selectedStrokeWidth.value
+                                          .toStringAsFixed(0),
+                                      style: GoogleFonts.poppins(
+                                        fontWeight: FontWeight.bold,
+                                        color: blackColor,
+                                        fontSize: 13,
                                       ),
-                                      TextSpan(
-                                        text: "  PX",
-                                        style: GoogleFonts.poppins(
-                                          fontWeight: FontWeight.bold,
-                                          color: blackColor,
-                                          fontSize: 10,
-                                        ),
+                                    ),
+                                    TextSpan(
+                                      text: "  PX",
+                                      style: GoogleFonts.poppins(
+                                        fontWeight: FontWeight.bold,
+                                        color: blackColor,
+                                        fontSize: 10,
                                       ),
-                                    ],
-                                  ),
+                                    ),
+                                  ],
                                 ),
                               ),
                               onChanged: (value) {
@@ -2560,7 +2570,7 @@ class _TextWidgetState extends State<TextWidget> {
 }
 
 class ImageWidget extends StatefulWidget {
-  var image;
+  final image;
   final VoidCallback onRemove;
   int index;
 
@@ -3087,29 +3097,27 @@ Widget fontSizeDropDown(BuildContext context) {
                   ),
                 );
               }).toList(),
-              hint: Container(
-                child: Text.rich(
-                  TextSpan(
-                    children: [
-                      TextSpan(
-                        text: editController.selectedFontSize.value
-                            .toStringAsFixed(0),
-                        style: GoogleFonts.poppins(
-                          fontWeight: FontWeight.bold,
-                          color: blackColor,
-                          fontSize: 13,
-                        ),
+              hint: Text.rich(
+                TextSpan(
+                  children: [
+                    TextSpan(
+                      text: editController.selectedFontSize.value
+                          .toStringAsFixed(0),
+                      style: GoogleFonts.poppins(
+                        fontWeight: FontWeight.bold,
+                        color: blackColor,
+                        fontSize: 13,
                       ),
-                      TextSpan(
-                        text: "  PX",
-                        style: GoogleFonts.poppins(
-                          fontWeight: FontWeight.bold,
-                          color: blackColor,
-                          fontSize: 10,
-                        ),
+                    ),
+                    TextSpan(
+                      text: "  PX",
+                      style: GoogleFonts.poppins(
+                        fontWeight: FontWeight.bold,
+                        color: blackColor,
+                        fontSize: 10,
                       ),
-                    ],
-                  ),
+                    ),
+                  ],
                 ),
               ),
               onChanged: (value) {
@@ -3340,7 +3348,6 @@ Widget textDecorationIcon() {
 
 Widget buildEditableTextItem(
     EditableTextItem item, int index, bool isFront, setState) {
-  Offset touchPosition = Offset.zero;
   onPanStart(DragStartDetails details) {
     if (shareCardStates[isFrontTap] == true) {
       return true;
@@ -3444,7 +3451,7 @@ void showPermissionDeniedDialog(
     actions: [
       TextButton(
         child: const Text(
-          'Open Settings',
+          openSettings,
           style: TextStyle(color: kPrimeryColor),
         ),
         onPressed: () {
@@ -3454,7 +3461,7 @@ void showPermissionDeniedDialog(
       ),
       TextButton(
         child: const Text(
-          'Cancel',
+          cancel,
           style: TextStyle(color: Colors.black),
         ),
         onPressed: () {
@@ -3486,7 +3493,9 @@ void showSurveyDialog(BuildContext context) {
       "answer": "YES",
     },
   ];
+  GlobalKey<FormState> formKey = GlobalKey<FormState>();
   TextEditingController txtDescription = TextEditingController();
+  TextEditingController txtEmail = TextEditingController();
   showGeneralDialog(
     barrierDismissible: false,
     context: context,
@@ -3509,213 +3518,194 @@ void showSurveyDialog(BuildContext context) {
                         )
                       : Stack(
                           children: [
-                            Container(
-                              margin: const EdgeInsets.symmetric(
-                                  horizontal: 20, vertical: 20),
-                              decoration: BoxDecoration(
-                                color: whiteColor,
-                                borderRadius: BorderRadius.circular(20),
-                              ),
-                              width: double.infinity,
-                              child: Padding(
-                                padding: const EdgeInsets.symmetric(
-                                    vertical: 36, horizontal: 34),
-                                child: Column(
-                                    crossAxisAlignment:
-                                        CrossAxisAlignment.start,
-                                    mainAxisSize: MainAxisSize.min,
-                                    children: switch (pageNumber) {
-                                      0 => [
-                                          Center(
-                                            child: Container(
-                                                height: 50,
-                                                width: 50,
-                                                child: Image.asset(
-                                                  'assets/images/AppLogo.png',
-                                                )),
-                                          ),
-                                          const SizedBox(
-                                            height: 10,
-                                          ),
-                                          Text(
-                                            "We'd Love Your Feedback!",
-                                            style: GoogleFonts.poppins(
-                                              fontSize: 20,
-                                              fontWeight: FontWeight.w500,
-                                              color: kPrimeryColor,
+                            Form(
+                              key: formKey,
+                              child: Container(
+                                margin: const EdgeInsets.symmetric(
+                                    horizontal: 20, vertical: 20),
+                                decoration: BoxDecoration(
+                                  color: whiteColor,
+                                  borderRadius: BorderRadius.circular(20),
+                                ),
+                                width: double.infinity,
+                                child: Padding(
+                                  padding: const EdgeInsets.symmetric(
+                                      vertical: 36, horizontal: 34),
+                                  child: Column(
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.start,
+                                      mainAxisSize: MainAxisSize.min,
+                                      children: switch (pageNumber) {
+                                        0 => [
+                                            Center(
+                                              child: SizedBox(
+                                                  height: 50,
+                                                  width: 50,
+                                                  child: Image.asset(
+                                                    'assets/images/AppLogo.png',
+                                                  )),
                                             ),
-                                          ),
-                                          Text(
-                                            "Your feedback helps us improve the app and provide a better experience.",
-                                            style: GoogleFonts.poppins(
-                                              fontSize: 16,
-                                              fontWeight: FontWeight.w500,
-                                              color: const Color(0xff7D7E80),
+                                            const SizedBox(
+                                              height: 10,
                                             ),
-                                          ),
-                                          const SizedBox(
-                                            height: 10,
-                                          ),
-                                          InkWell(
-                                            onTap: () {
-                                              newSetState(() {
-                                                pageNumber = 1;
-                                              });
-                                            },
-                                            child: Container(
-                                              height: 48,
-                                              width: double.infinity,
-                                              decoration: BoxDecoration(
-                                                  color: kPrimeryColor,
+                                            Text(
+                                              weLoveYourFeedback,
+                                              style: GoogleFonts.poppins(
+                                                fontSize: 20,
+                                                fontWeight: FontWeight.w500,
+                                                color: kPrimeryColor,
+                                              ),
+                                            ),
+                                            Text(
+                                              feedbackDescription,
+                                              style: GoogleFonts.poppins(
+                                                fontSize: 16,
+                                                fontWeight: FontWeight.w500,
+                                                color: const Color(0xff7D7E80),
+                                              ),
+                                            ),
+                                            const SizedBox(
+                                              height: 10,
+                                            ),
+                                            TextFormField(
+                                              validator: (value) {
+                                                if (value!.isEmpty) {
+                                                  return 'Please enter your email address';
+                                                }
+                                                if (!value.isEmail) {
+                                                  return 'Please enter a valid email address';
+                                                }
+                                                return null;
+                                              },
+                                              maxLines: 1,
+                                              controller: txtEmail,
+                                              cursorColor: kPrimeryColor,
+                                              style: GoogleFonts.poppins(
+                                                fontSize: 14,
+                                                fontWeight: FontWeight.w500,
+                                                color: kPrimeryColor,
+                                              ),
+                                              decoration: InputDecoration(
+                                                isDense: true,
+                                                hintText: enteryouremailid,
+                                                hintStyle: GoogleFonts.poppins(
+                                                  fontSize: 14,
+                                                  fontWeight: FontWeight.w300,
+                                                  color:
+                                                      const Color(0xff686767),
+                                                ),
+                                                border:
+                                                    const OutlineInputBorder(
+                                                  borderSide: BorderSide(
+                                                      color: Color(0xff929292)),
                                                   borderRadius:
-                                                      BorderRadius.circular(8)),
-                                              alignment: Alignment.center,
-                                              child: Text(
-                                                'Take the Survey',
-                                                style: GoogleFonts.poppins(
-                                                  fontSize: 18,
-                                                  fontWeight: FontWeight.w600,
-                                                  color: Colors.white,
+                                                      BorderRadius.all(
+                                                    Radius.circular(10),
+                                                  ),
                                                 ),
-                                              ),
-                                            ),
-                                          ),
-                                        ],
-                                      1 => [
-                                          Center(
-                                            child: Container(
-                                                height: 50,
-                                                width: 50,
-                                                child: Image.asset(
-                                                  'assets/images/AppLogo.png',
-                                                )),
-                                          ),
-                                          const SizedBox(
-                                            height: 10,
-                                          ),
-                                          Text(
-                                            qnaList[questionNumber]['question'],
-                                            style: GoogleFonts.poppins(
-                                              fontSize: 20,
-                                              fontWeight: FontWeight.w500,
-                                              color: kPrimeryColor,
-                                            ),
-                                          ),
-                                          const SizedBox(
-                                            height: 10,
-                                          ),
-                                          Row(
-                                            children: [
-                                              Expanded(
-                                                child: InkWell(
-                                                  onTap: () {
-                                                    newSetState(() {
-                                                      qnaList[questionNumber]
-                                                          ['answer'] = "YES";
-                                                    });
-                                                  },
-                                                  child: Container(
-                                                    height: 42,
-                                                    decoration: BoxDecoration(
-                                                        color: qnaList[questionNumber]
-                                                                    [
-                                                                    'answer'] ==
-                                                                "YES"
-                                                            ? const Color(
-                                                                0xffDEE8FE)
-                                                            : null,
-                                                        border: Border.all(
-                                                            width: 2,
-                                                            color: qnaList[questionNumber]
-                                                                        [
-                                                                        'answer'] ==
-                                                                    "YES"
-                                                                ? kPrimeryColor
-                                                                : Color(
-                                                                    0xffDEE8FE)),
-                                                        borderRadius:
-                                                            BorderRadius
-                                                                .circular(8)),
-                                                    alignment: Alignment.center,
-                                                    child: Text(
-                                                      'YES',
-                                                      style:
-                                                          GoogleFonts.poppins(
-                                                        fontSize: 18,
-                                                        fontWeight:
-                                                            FontWeight.w600,
-                                                        color: kPrimeryColor,
-                                                      ),
-                                                    ),
+                                                focusedBorder:
+                                                    const OutlineInputBorder(
+                                                  borderSide: BorderSide(
+                                                      color: kPrimeryColor),
+                                                  borderRadius:
+                                                      BorderRadius.all(
+                                                    Radius.circular(10),
                                                   ),
                                                 ),
                                               ),
-                                              const SizedBox(
-                                                width: 8,
-                                              ),
-                                              Expanded(
-                                                child: InkWell(
-                                                  onTap: () {
-                                                    newSetState(() {
-                                                      qnaList[questionNumber]
-                                                          ['answer'] = "NO";
-                                                    });
-                                                  },
-                                                  child: Container(
-                                                    height: 42,
-                                                    decoration: BoxDecoration(
-                                                        color: qnaList[questionNumber]
-                                                                    [
-                                                                    'answer'] ==
-                                                                "NO"
-                                                            ? const Color(
-                                                                0xffDEE8FE)
-                                                            : null,
-                                                        border: Border.all(
-                                                            width: 2,
-                                                            color: qnaList[questionNumber]
-                                                                        [
-                                                                        'answer'] ==
-                                                                    "NO"
-                                                                ? kPrimeryColor
-                                                                : Color(
-                                                                    0xffDEE8FE)),
-                                                        borderRadius:
-                                                            BorderRadius
-                                                                .circular(8)),
-                                                    alignment: Alignment.center,
-                                                    child: Text(
-                                                      'NO',
-                                                      style:
-                                                          GoogleFonts.poppins(
-                                                        fontSize: 18,
-                                                        fontWeight:
-                                                            FontWeight.w600,
-                                                        color: kPrimeryColor,
-                                                      ),
-                                                    ),
+                                            ),
+                                            const SizedBox(
+                                              height: 10,
+                                            ),
+                                            InkWell(
+                                              onTap: () {
+                                                if (formKey.currentState!
+                                                    .validate()) {
+                                                  newSetState(() {
+                                                    pageNumber = 1;
+                                                  });
+                                                }
+                                              },
+                                              child: Container(
+                                                height: 48,
+                                                width: double.infinity,
+                                                decoration: BoxDecoration(
+                                                    color: kPrimeryColor,
+                                                    borderRadius:
+                                                        BorderRadius.circular(
+                                                            8)),
+                                                alignment: Alignment.center,
+                                                child: Text(
+                                                  taketheSurvey,
+                                                  style: GoogleFonts.poppins(
+                                                    fontSize: 18,
+                                                    fontWeight: FontWeight.w600,
+                                                    color: Colors.white,
                                                   ),
                                                 ),
                                               ),
-                                            ],
-                                          ),
-                                          const SizedBox(
-                                            height: 24,
-                                          ),
-                                          Row(
-                                            mainAxisAlignment:
-                                                MainAxisAlignment.end,
-                                            children: [
-                                              questionNumber == 0
-                                                  ? Container()
-                                                  : InkWell(
-                                                      onTap: () {
-                                                        newSetState(() {
-                                                          questionNumber--;
-                                                        });
-                                                      },
+                                            ),
+                                          ],
+                                        1 => [
+                                            Center(
+                                              child: SizedBox(
+                                                  height: 50,
+                                                  width: 50,
+                                                  child: Image.asset(
+                                                    'assets/images/AppLogo.png',
+                                                  )),
+                                            ),
+                                            const SizedBox(
+                                              height: 10,
+                                            ),
+                                            Text(
+                                              qnaList[questionNumber]
+                                                  ['question'],
+                                              style: GoogleFonts.poppins(
+                                                fontSize: 20,
+                                                fontWeight: FontWeight.w500,
+                                                color: kPrimeryColor,
+                                              ),
+                                            ),
+                                            const SizedBox(
+                                              height: 10,
+                                            ),
+                                            Row(
+                                              children: [
+                                                Expanded(
+                                                  child: InkWell(
+                                                    onTap: () {
+                                                      newSetState(() {
+                                                        qnaList[questionNumber]
+                                                            ['answer'] = "YES";
+                                                      });
+                                                    },
+                                                    child: Container(
+                                                      height: 42,
+                                                      decoration: BoxDecoration(
+                                                          color: qnaList[questionNumber]
+                                                                      [
+                                                                      'answer'] ==
+                                                                  "YES"
+                                                              ? const Color(
+                                                                  0xffDEE8FE)
+                                                              : null,
+                                                          border: Border.all(
+                                                              width: 2,
+                                                              color: qnaList[questionNumber]
+                                                                          [
+                                                                          'answer'] ==
+                                                                      "YES"
+                                                                  ? kPrimeryColor
+                                                                  : const Color(
+                                                                      0xffDEE8FE)),
+                                                          borderRadius:
+                                                              BorderRadius
+                                                                  .circular(8)),
+                                                      alignment:
+                                                          Alignment.center,
                                                       child: Text(
-                                                        'Previous',
+                                                        'YES',
                                                         style:
                                                             GoogleFonts.poppins(
                                                           fontSize: 18,
@@ -3725,186 +3715,310 @@ void showSurveyDialog(BuildContext context) {
                                                         ),
                                                       ),
                                                     ),
-                                              const SizedBox(
-                                                width: 10,
-                                              ),
-                                              InkWell(
-                                                onTap: () {
-                                                  newSetState(() {
-                                                    if (questionNumber >= 3) {
-                                                      pageNumber = 2;
-                                                    } else {
-                                                      questionNumber++;
-                                                    }
-                                                  });
-                                                },
-                                                child: Container(
-                                                  height: 34,
-                                                  decoration: BoxDecoration(
-                                                      color: kPrimeryColor,
-                                                      borderRadius:
-                                                          BorderRadius.circular(
-                                                              8)),
-                                                  alignment: Alignment.center,
-                                                  padding: const EdgeInsets
-                                                      .symmetric(
-                                                    horizontal: 20,
                                                   ),
-                                                  child: Text(
-                                                    'Next',
-                                                    style: GoogleFonts.poppins(
-                                                      fontSize: 18,
-                                                      fontWeight:
-                                                          FontWeight.w600,
-                                                      color: Colors.white,
+                                                ),
+                                                const SizedBox(
+                                                  width: 8,
+                                                ),
+                                                Expanded(
+                                                  child: InkWell(
+                                                    onTap: () {
+                                                      newSetState(() {
+                                                        qnaList[questionNumber]
+                                                            ['answer'] = "NO";
+                                                      });
+                                                    },
+                                                    child: Container(
+                                                      height: 42,
+                                                      decoration: BoxDecoration(
+                                                          color: qnaList[questionNumber]
+                                                                      [
+                                                                      'answer'] ==
+                                                                  "NO"
+                                                              ? const Color(
+                                                                  0xffDEE8FE)
+                                                              : null,
+                                                          border: Border.all(
+                                                              width: 2,
+                                                              color: qnaList[questionNumber]
+                                                                          [
+                                                                          'answer'] ==
+                                                                      "NO"
+                                                                  ? kPrimeryColor
+                                                                  : const Color(
+                                                                      0xffDEE8FE)),
+                                                          borderRadius:
+                                                              BorderRadius
+                                                                  .circular(8)),
+                                                      alignment:
+                                                          Alignment.center,
+                                                      child: Text(
+                                                        'NO',
+                                                        style:
+                                                            GoogleFonts.poppins(
+                                                          fontSize: 18,
+                                                          fontWeight:
+                                                              FontWeight.w600,
+                                                          color: kPrimeryColor,
+                                                        ),
+                                                      ),
                                                     ),
                                                   ),
                                                 ),
+                                              ],
+                                            ),
+                                            const SizedBox(
+                                              height: 24,
+                                            ),
+                                            Row(
+                                              mainAxisAlignment:
+                                                  MainAxisAlignment.end,
+                                              children: [
+                                                questionNumber == 0
+                                                    ? Container()
+                                                    : InkWell(
+                                                        onTap: () {
+                                                          newSetState(() {
+                                                            questionNumber--;
+                                                          });
+                                                        },
+                                                        child: Text(
+                                                          'Previous',
+                                                          style: GoogleFonts
+                                                              .poppins(
+                                                            fontSize: 18,
+                                                            fontWeight:
+                                                                FontWeight.w600,
+                                                            color:
+                                                                kPrimeryColor,
+                                                          ),
+                                                        ),
+                                                      ),
+                                                const SizedBox(
+                                                  width: 10,
+                                                ),
+                                                InkWell(
+                                                  onTap: () {
+                                                    newSetState(() {
+                                                      if (questionNumber >= 3) {
+                                                        pageNumber = 2;
+                                                      } else {
+                                                        questionNumber++;
+                                                      }
+                                                    });
+                                                  },
+                                                  child: Container(
+                                                    height: 34,
+                                                    decoration: BoxDecoration(
+                                                        color: kPrimeryColor,
+                                                        borderRadius:
+                                                            BorderRadius
+                                                                .circular(8)),
+                                                    alignment: Alignment.center,
+                                                    padding: const EdgeInsets
+                                                        .symmetric(
+                                                      horizontal: 20,
+                                                    ),
+                                                    child: Text(
+                                                      next,
+                                                      style:
+                                                          GoogleFonts.poppins(
+                                                        fontSize: 18,
+                                                        fontWeight:
+                                                            FontWeight.w600,
+                                                        color: Colors.white,
+                                                      ),
+                                                    ),
+                                                  ),
+                                                ),
+                                              ],
+                                            ),
+                                          ],
+                                        2 => [
+                                            Center(
+                                              child: SizedBox(
+                                                  height: 50,
+                                                  width: 50,
+                                                  child: Image.asset(
+                                                    'assets/images/AppLogo.png',
+                                                  )),
+                                            ),
+                                            const SizedBox(
+                                              height: 10,
+                                            ),
+                                            Text(
+                                              "What improvements would you like to see in the app?",
+                                              style: GoogleFonts.poppins(
+                                                fontSize: 20,
+                                                fontWeight: FontWeight.w500,
+                                                color: kPrimeryColor,
                                               ),
-                                            ],
-                                          ),
-                                        ],
-                                      2 => [
-                                          Center(
-                                            child: SizedBox(
-                                                height: 50,
-                                                width: 50,
-                                                child: Image.asset(
-                                                  'assets/images/AppLogo.png',
-                                                )),
-                                          ),
-                                          const SizedBox(
-                                            height: 10,
-                                          ),
-                                          Text(
-                                            "What improvements would you like to see in the app?",
-                                            style: GoogleFonts.poppins(
-                                              fontSize: 20,
-                                              fontWeight: FontWeight.w500,
-                                              color: kPrimeryColor,
                                             ),
-                                          ),
-                                          const SizedBox(
-                                            height: 10,
-                                          ),
-                                          TextField(
-                                            maxLines: 4,
-                                            controller: txtDescription,
-                                            cursorColor: kPrimeryColor,
-                                            style: GoogleFonts.poppins(
-                                              fontSize: 14,
-                                              fontWeight: FontWeight.w500,
-                                              color: kPrimeryColor,
+                                            const SizedBox(
+                                              height: 10,
                                             ),
-                                            decoration: InputDecoration(
-                                              hintText:
-                                                  'Share your thoughts here',
-                                              hintStyle: GoogleFonts.poppins(
+                                            TextField(
+                                              maxLines: 4,
+                                              controller: txtDescription,
+                                              cursorColor: kPrimeryColor,
+                                              style: GoogleFonts.poppins(
                                                 fontSize: 14,
-                                                fontWeight: FontWeight.w300,
-                                                color: const Color(0xff686767),
+                                                fontWeight: FontWeight.w500,
+                                                color: kPrimeryColor,
                                               ),
-                                              border: const OutlineInputBorder(
-                                                borderSide: BorderSide(
-                                                    color: Color(0xff929292)),
-                                                borderRadius: BorderRadius.all(
-                                                  Radius.circular(10),
+                                              decoration: InputDecoration(
+                                                hintText:
+                                                    'Share your thoughts here',
+                                                hintStyle: GoogleFonts.poppins(
+                                                  fontSize: 14,
+                                                  fontWeight: FontWeight.w300,
+                                                  color:
+                                                      const Color(0xff686767),
                                                 ),
-                                              ),
-                                              focusedBorder:
-                                                  const OutlineInputBorder(
-                                                borderSide: BorderSide(
-                                                    color: kPrimeryColor),
-                                                borderRadius: BorderRadius.all(
-                                                  Radius.circular(10),
-                                                ),
-                                              ),
-                                            ),
-                                          ),
-                                          const SizedBox(
-                                            height: 10,
-                                          ),
-                                          InkWell(
-                                            onTap: () {
-                                              newSetState(() {
-                                                pageNumber = 3;
-                                                SharedPreference
-                                                    .sharedPreference
-                                                    .setSurveyComplated(
-                                                        isSurveyComplated:
-                                                            true);
-                                                EmailService.instance.sendSurvey(
-                                                    body:
-                                                        '''1.${qnaList[0]['question']} = ${qnaList[0]['answer']}\n2.${qnaList[1]['question']} = ${qnaList[1]['answer']}\n3.${qnaList[2]['question']} = ${qnaList[2]['answer']}\n4.${qnaList[3]['question']} = ${qnaList[3]['answer']}\n5.What improvements would you like to see in the app? = ${txtDescription.text.trim()}''');
-                                              });
-                                            },
-                                            child: Container(
-                                              height: 48,
-                                              width: double.infinity,
-                                              decoration: BoxDecoration(
-                                                  color: kPrimeryColor,
+                                                border:
+                                                    const OutlineInputBorder(
+                                                  borderSide: BorderSide(
+                                                      color: Color(0xff929292)),
                                                   borderRadius:
-                                                      BorderRadius.circular(8)),
-                                              alignment: Alignment.center,
-                                              child: Text(
-                                                'Submit',
-                                                style: GoogleFonts.poppins(
-                                                  fontSize: 18,
-                                                  fontWeight: FontWeight.w600,
-                                                  color: Colors.white,
+                                                      BorderRadius.all(
+                                                    Radius.circular(10),
+                                                  ),
                                                 ),
-                                              ),
-                                            ),
-                                          ),
-                                        ],
-                                      3 => [
-                                          Center(
-                                            child: SizedBox(
-                                                height: 72,
-                                                width: 72,
-                                                child: Image.asset(
-                                                  'assets/images/success_survey.png',
-                                                )),
-                                          ),
-                                          const SizedBox(
-                                            height: 10,
-                                          ),
-                                          Text(
-                                            "Thank you for your feedback! We appreciate your input and will use it to improve our services.",
-                                            style: GoogleFonts.poppins(
-                                              fontSize: 18,
-                                              fontWeight: FontWeight.w500,
-                                              color: kPrimeryColor,
-                                            ),
-                                          ),
-                                          const SizedBox(
-                                            height: 10,
-                                          ),
-                                          InkWell(
-                                            onTap: () {
-                                              Navigator.pop(context);
-                                            },
-                                            child: Container(
-                                              height: 48,
-                                              width: double.infinity,
-                                              decoration: BoxDecoration(
-                                                  color: kPrimeryColor,
+                                                focusedBorder:
+                                                    const OutlineInputBorder(
+                                                  borderSide: BorderSide(
+                                                      color: kPrimeryColor),
                                                   borderRadius:
-                                                      BorderRadius.circular(8)),
-                                              alignment: Alignment.center,
-                                              child: Text(
-                                                'OK',
-                                                style: GoogleFonts.poppins(
-                                                  fontSize: 18,
-                                                  fontWeight: FontWeight.w600,
-                                                  color: Colors.white,
+                                                      BorderRadius.all(
+                                                    Radius.circular(10),
+                                                  ),
                                                 ),
                                               ),
                                             ),
-                                          ),
-                                        ],
-                                      int() => [],
-                                    }),
+                                            const SizedBox(
+                                              height: 10,
+                                            ),
+                                            InkWell(
+                                              onTap: () {
+                                                newSetState(() {
+                                                  pageNumber = 3;
+                                                  SharedPreference
+                                                      .sharedPreference
+                                                      .setSurveyComplated(
+                                                          isSurveyComplated:
+                                                              true);
+
+                                                  FirebaseFirestore.instance
+                                                      .collection('survey')
+                                                      .add(
+                                                    {
+                                                      "email":
+                                                          txtEmail.text.trim(),
+                                                      'qna_1': {
+                                                        'question': qnaList[0]
+                                                            ['question'],
+                                                        'answer': qnaList[0]
+                                                            ['answer'],
+                                                      },
+                                                      'qna_2': {
+                                                        'question': qnaList[1]
+                                                            ['question'],
+                                                        'answer': qnaList[1]
+                                                            ['answer'],
+                                                      },
+                                                      'qna_3': {
+                                                        'question': qnaList[2]
+                                                            ['question'],
+                                                        'answer': qnaList[2]
+                                                            ['answer'],
+                                                      },
+                                                      'qna_4': {
+                                                        'question': qnaList[3]
+                                                            ['question'],
+                                                        'answer': qnaList[3]
+                                                            ['answer'],
+                                                      },
+                                                      'improvements':
+                                                          txtDescription.text
+                                                              .trim(),
+                                                    },
+                                                  );
+
+                                                  // EmailService.instance.sendSurvey(
+                                                  //     body:
+                                                  //         '''1.${qnaList[0]['question']} = ${qnaList[0]['answer']}\n2.${qnaList[1]['question']} = ${qnaList[1]['answer']}\n3.${qnaList[2]['question']} = ${qnaList[2]['answer']}\n4.${qnaList[3]['question']} = ${qnaList[3]['answer']}\n5.What improvements would you like to see in the app? = ${txtDescription.text.trim()}''');
+                                                });
+                                              },
+                                              child: Container(
+                                                height: 48,
+                                                width: double.infinity,
+                                                decoration: BoxDecoration(
+                                                    color: kPrimeryColor,
+                                                    borderRadius:
+                                                        BorderRadius.circular(
+                                                            8)),
+                                                alignment: Alignment.center,
+                                                child: Text(
+                                                  submit,
+                                                  style: GoogleFonts.poppins(
+                                                    fontSize: 18,
+                                                    fontWeight: FontWeight.w600,
+                                                    color: Colors.white,
+                                                  ),
+                                                ),
+                                              ),
+                                            ),
+                                          ],
+                                        3 => [
+                                            Center(
+                                              child: SizedBox(
+                                                  height: 72,
+                                                  width: 72,
+                                                  child: Image.asset(
+                                                    'assets/images/success_survey.png',
+                                                  )),
+                                            ),
+                                            const SizedBox(
+                                              height: 10,
+                                            ),
+                                            Text(
+                                              "Thank you for your feedback! We appreciate your input and will use it to improve our services.",
+                                              style: GoogleFonts.poppins(
+                                                fontSize: 18,
+                                                fontWeight: FontWeight.w500,
+                                                color: kPrimeryColor,
+                                              ),
+                                            ),
+                                            const SizedBox(
+                                              height: 10,
+                                            ),
+                                            InkWell(
+                                              onTap: () {
+                                                Navigator.pop(context);
+                                              },
+                                              child: Container(
+                                                height: 48,
+                                                width: double.infinity,
+                                                decoration: BoxDecoration(
+                                                    color: kPrimeryColor,
+                                                    borderRadius:
+                                                        BorderRadius.circular(
+                                                            8)),
+                                                alignment: Alignment.center,
+                                                child: Text(
+                                                  ok,
+                                                  style: GoogleFonts.poppins(
+                                                    fontSize: 18,
+                                                    fontWeight: FontWeight.w600,
+                                                    color: Colors.white,
+                                                  ),
+                                                ),
+                                              ),
+                                            ),
+                                          ],
+                                        int() => [],
+                                      }),
+                                ),
                               ),
                             ),
                             Positioned(

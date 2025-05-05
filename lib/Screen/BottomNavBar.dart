@@ -6,10 +6,12 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:page_transition/page_transition.dart';
 import 'package:photo_frame/Contstant/AppColor.dart';
 import 'package:photo_frame/Contstant/CommonMethod.dart';
+import 'package:photo_frame/Contstant/Strings.dart';
 import 'package:photo_frame/Screen/BrandingPage.dart';
 import 'package:photo_frame/Screen/GradientText.dart';
 import 'package:photo_frame/Screen/HomePage.dart';
 import 'package:photo_frame/Screen/HomeSearchPage.dart';
+import 'package:photo_frame/Screen/PersonalInfo.dart';
 import 'package:photo_frame/Screen/PrivacyPolicy.dart';
 import 'package:photo_frame/Screen/Templates.dart';
 import 'package:photo_frame/Screen/saveImageShow.dart';
@@ -58,7 +60,7 @@ class _BottomNavBarBarState extends State<BottomNavBarBar> {
       appBar: AppBar(
         backgroundColor: kPrimeryColor,
         title: Text(
-          isHomeTap == true ? "Home" : "Card",
+          isHomeTap == true ? home : card,
           style: GoogleFonts.poppins(
             fontWeight: FontWeight.w700,
             fontSize: 15,
@@ -153,7 +155,7 @@ class _BottomNavBarBarState extends State<BottomNavBarBar> {
                                       : kPrimeryColor.withOpacity(0.6),
                                 ),
                                 Text(
-                                  "Home",
+                                  home,
                                   style: GoogleFonts.poppins(
                                     fontSize: 15,
                                     fontWeight: FontWeight.w600,
@@ -193,7 +195,7 @@ class _BottomNavBarBarState extends State<BottomNavBarBar> {
                                       : kPrimeryColor.withOpacity(0.6),
                                 ),
                                 Text(
-                                  "Branding",
+                                  branding,
                                   style: GoogleFonts.poppins(
                                     fontSize: 15,
                                     fontWeight: FontWeight.w600,
@@ -218,7 +220,7 @@ class _BottomNavBarBarState extends State<BottomNavBarBar> {
               right: 0,
               child: Center(
                 child: Text(
-                  "Search",
+                  search,
                   style: GoogleFonts.poppins(
                     fontSize: 15,
                     fontWeight: FontWeight.w600,
@@ -234,6 +236,10 @@ class _BottomNavBarBarState extends State<BottomNavBarBar> {
         children: [
           Container(
             margin: const EdgeInsets.symmetric(horizontal: 20, vertical: 20),
+            decoration: BoxDecoration(
+              border: Border.all(color: kPrimeryColor, width: 1.2),
+              borderRadius: BorderRadius.circular(10),
+            ),
             child: Material(
               elevation: 5,
               borderRadius: BorderRadius.circular(10),
@@ -251,18 +257,39 @@ class _BottomNavBarBarState extends State<BottomNavBarBar> {
                 child: TextField(
                   decoration: InputDecoration(
                     border: InputBorder.none,
-                    prefixIcon: const Icon(
+                    prefixIcon: Icon(
                       Icons.search,
-                      color: greyColor,
+                      color: Colors.grey.shade600,
                     ),
-                    suffixIcon: const Icon(
-                      Icons.keyboard_voice_outlined,
-                      color: greyColor,
+                    suffixIcon: Padding(
+                      padding: const EdgeInsets.only(right: 10),
+                      child: Container(
+                        margin: const EdgeInsets.symmetric(
+                            horizontal: 2, vertical: 2),
+                        decoration: BoxDecoration(
+                          color: kPrimeryColor.withOpacity(0.7),
+                          shape: BoxShape.circle,
+                        ),
+                        child: const Icon(
+                          Icons.keyboard_voice_outlined,
+                          color: whiteColor,
+                          size: 18,
+                        ),
+                      ),
                     ),
-                    hintText: "Search Your Poster",
+                    hintText: searchYourPoster,
                     hintStyle: GoogleFonts.poppins(
                       fontSize: 12,
+                      color: Colors.grey.shade600,
                       fontWeight: FontWeight.w500,
+                    ),
+                    enabledBorder: const OutlineInputBorder(
+                      borderSide: BorderSide(color: kPrimeryColor, width: 1.2),
+                      borderRadius: BorderRadius.all(Radius.circular(10)),
+                    ),
+                    focusedBorder: const OutlineInputBorder(
+                      borderSide: BorderSide(color: kPrimeryColor, width: 1.2),
+                      borderRadius: BorderRadius.all(Radius.circular(10)),
                     ),
                     enabled: false,
                   ),
@@ -291,91 +318,77 @@ class _BottomNavBarBarState extends State<BottomNavBarBar> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          SafeArea(
-            child: Container(
-              margin: const EdgeInsets.only(left: 20, top: 40),
-              child: Column(
-                children: [
-                  Row(
-                    children: [
-                      SizedBox(
-                        height: 55,
-                        width: 55,
-                        child: Image.asset("assets/images/AppLogo.png"),
-                      ),
-                      const SizedBox(
-                        width: 15,
-                      ),
-                      GradientText(
-                        "Festival Poster",
-                        style: GoogleFonts.reemKufiFun(
-                          fontSize: 20,
-                          fontWeight: FontWeight.w400,
+          Expanded(
+            child: SafeArea(
+              child: Container(
+                margin: const EdgeInsets.only(left: 20, top: 40),
+                child: Column(
+                  children: [
+                    Row(
+                      children: [
+                        SizedBox(
+                          height: 55,
+                          width: 55,
+                          child: Image.asset("assets/images/AppLogo.png"),
                         ),
-                        gradient: const LinearGradient(
-                          colors: [
-                            Color(0xff276EB6),
-                            Color(0xff443995),
-                          ],
+                        const SizedBox(
+                          width: 15,
                         ),
-                      ),
-                    ],
-                  ),
-                  Container(
-                    margin: const EdgeInsets.only(top: 40),
-                    child: ListView.builder(
-                      shrinkWrap: true,
-                      physics: const NeverScrollableScrollPhysics(),
-                      itemCount: drawerList.length,
-                      itemBuilder: (context, index) {
-                        return GestureDetector(
-                          onTap: () {
-                            drawerContainer = index;
-                            index == 0
-                                ? {
-                                    scaffoldKey.currentState!.closeDrawer(),
-                                    reviewCount(context),
-                                  }
-                                : index == 1
+                        GradientText(
+                          festivalPoster,
+                          style: GoogleFonts.reemKufiFun(
+                            fontSize: 20,
+                            fontWeight: FontWeight.w400,
+                          ),
+                          gradient: const LinearGradient(
+                            colors: [
+                              Color(0xff276EB6),
+                              Color(0xff443995),
+                            ],
+                          ),
+                        ),
+                      ],
+                    ),
+                    Expanded(
+                      child: Container(
+                        margin: const EdgeInsets.only(top: 40),
+                        child: ListView.builder(
+                          physics: const NeverScrollableScrollPhysics(),
+                          itemCount: drawerList.length,
+                          itemBuilder: (context, index) {
+                            return GestureDetector(
+                              onTap: () {
+                                drawerContainer = index;
+                                index == 0
                                     ? {
-                                        tabTap = 0,
-                                        Navigator.push(
-                                          context,
-                                          PageTransition(
-                                            type: PageTransitionType
-                                                .rightToLeftWithFade,
-                                            child: const Templates(
-                                                scrollPosition: 0),
-                                          ),
-                                        ),
                                         scaffoldKey.currentState!.closeDrawer(),
                                         reviewCount(context),
-                                        drawerContainer = 0,
                                       }
-                                    : index == 2
+                                    : index == 1
                                         ? {
+                                            tabTap = 0,
+                                            Navigator.push(
+                                              context,
+                                              PageTransition(
+                                                type: PageTransitionType
+                                                    .rightToLeftWithFade,
+                                                child: const Templates(
+                                                    scrollPosition: 0),
+                                              ),
+                                            ),
                                             scaffoldKey.currentState!
                                                 .closeDrawer(),
-                                            showFeedBackDialog(context),
+                                            reviewCount(context),
                                             drawerContainer = 0,
                                           }
-                                        : index == 3
+                                        : index == 2
                                             ? {
-                                                Navigator.push(
-                                                  context,
-                                                  PageTransition(
-                                                    type: PageTransitionType
-                                                        .rightToLeftWithFade,
-                                                    child:
-                                                        const SaveImageShow(),
-                                                  ),
-                                                ),
                                                 scaffoldKey.currentState!
                                                     .closeDrawer(),
-                                                reviewCount(context),
+                                                showFeedBackDialog(context),
                                                 drawerContainer = 0,
                                               }
-                                            : index == 5
+                                            : index == 3
                                                 ? {
                                                     Navigator.push(
                                                       context,
@@ -383,7 +396,7 @@ class _BottomNavBarBarState extends State<BottomNavBarBar> {
                                                         type: PageTransitionType
                                                             .rightToLeftWithFade,
                                                         child:
-                                                            const PrivacyPolicy(),
+                                                            const SaveImageShow(),
                                                       ),
                                                     ),
                                                     scaffoldKey.currentState!
@@ -391,85 +404,121 @@ class _BottomNavBarBarState extends State<BottomNavBarBar> {
                                                     reviewCount(context),
                                                     drawerContainer = 0,
                                                   }
-                                                : index == 4
+                                                : index == 6
                                                     ? {
+                                                        Navigator.push(
+                                                          context,
+                                                          PageTransition(
+                                                            type: PageTransitionType
+                                                                .rightToLeftWithFade,
+                                                            child:
+                                                                const PrivacyPolicy(),
+                                                          ),
+                                                        ),
                                                         scaffoldKey
                                                             .currentState!
                                                             .closeDrawer(),
-                                                        showSurveyDialog(
-                                                            context),
+                                                        reviewCount(context),
                                                         drawerContainer = 0,
                                                       }
-                                                    : Container();
-                            setState(() {});
-                          },
-                          child: Container(
-                            height: 50,
-                            margin: const EdgeInsets.only(
-                              top: 10,
-                            ),
-                            decoration: BoxDecoration(
-                              borderRadius: const BorderRadius.only(
-                                topLeft: Radius.circular(10),
-                                bottomLeft: Radius.circular(10),
-                              ),
-                              color: drawerContainer == index
-                                  ? kPrimeryColor.withOpacity(0.08)
-                                  : null,
-                            ),
-                            child: Container(
-                              margin: const EdgeInsets.only(left: 10),
-                              child: Row(
-                                mainAxisAlignment:
-                                    MainAxisAlignment.spaceBetween,
-                                children: [
-                                  Row(
-                                    children: [
-                                      Image.asset(
-                                        drawerList[index]["icon"],
-                                        scale: 4.5,
-                                        fit: BoxFit.fill,
-                                        color: drawerContainer == index
-                                            ? kPrimeryColor
-                                            : blackColor,
-                                      ),
-                                      const SizedBox(
-                                        width: 20,
-                                      ),
-                                      Text(
-                                        drawerList[index]["name"],
-                                        style: GoogleFonts.poppins(
-                                          fontSize: 16,
-                                          fontWeight: FontWeight.w500,
-                                          color: drawerContainer == index
-                                              ? kPrimeryColor
-                                              : blackColor,
-                                        ),
-                                      ),
-                                    ],
+                                                    : index == 5
+                                                        ? {
+                                                            scaffoldKey
+                                                                .currentState!
+                                                                .closeDrawer(),
+                                                            showSurveyDialog(
+                                                                context),
+                                                            drawerContainer = 0,
+                                                          }
+                                                        : index == 4
+                                                            ? {
+                                                                scaffoldKey
+                                                                    .currentState!
+                                                                    .closeDrawer(),
+                                                                drawerContainer =
+                                                                    0,
+                                                                Navigator.push(
+                                                                  context,
+                                                                  MaterialPageRoute(
+                                                                    builder:
+                                                                        (context) =>
+                                                                            const PersonalInfo(),
+                                                                  ),
+                                                                ),
+                                                              }
+                                                            : Container();
+                                setState(() {});
+                              },
+                              child: Container(
+                                height: 50,
+                                margin: const EdgeInsets.only(
+                                  top: 10,
+                                ),
+                                decoration: BoxDecoration(
+                                  borderRadius: const BorderRadius.only(
+                                    topLeft: Radius.circular(10),
+                                    bottomLeft: Radius.circular(10),
                                   ),
-                                  drawerContainer == index
-                                      ? Container(
-                                          height: 50,
-                                          width: 5,
-                                          decoration: const BoxDecoration(
-                                            color: kPrimeryColor,
-                                            borderRadius: BorderRadius.only(
-                                              topLeft: Radius.circular(8),
-                                              bottomLeft: Radius.circular(8),
+                                  color: drawerContainer == index
+                                      ? kPrimeryColor.withOpacity(0.08)
+                                      : null,
+                                ),
+                                child: Container(
+                                  margin: const EdgeInsets.only(left: 10),
+                                  child: Row(
+                                    mainAxisAlignment:
+                                        MainAxisAlignment.spaceBetween,
+                                    children: [
+                                      Row(
+                                        children: [
+                                          Image.asset(
+                                            drawerList[index]["icon"],
+                                            scale: 4.5,
+                                            fit: BoxFit.fill,
+                                            color: drawerContainer == index
+                                                ? kPrimeryColor
+                                                : blackColor,
+                                          ),
+                                          const SizedBox(
+                                            width: 20,
+                                          ),
+                                          Text(
+                                            drawerList[index]["name"],
+                                            style: GoogleFonts.poppins(
+                                              fontSize: 16,
+                                              fontWeight: FontWeight.w500,
+                                              color: drawerContainer == index
+                                                  ? kPrimeryColor
+                                                  : blackColor,
                                             ),
                                           ),
-                                        )
-                                      : Container(),
-                                ],
+                                        ],
+                                      ),
+                                      drawerContainer == index
+                                          ? Container(
+                                              height: 50,
+                                              width: 5,
+                                              decoration: const BoxDecoration(
+                                                color: kPrimeryColor,
+                                                borderRadius: BorderRadius.only(
+                                                  topLeft: Radius.circular(8),
+                                                  bottomLeft:
+                                                      Radius.circular(8),
+                                                ),
+                                              ),
+                                            )
+                                          : Container(),
+                                    ],
+                                  ),
+                                ),
                               ),
-                            ),
-                          ),
-                        );
-                      },
+                            );
+                          },
+                        ),
+                      ),
                     ),
-                  ),
-                ],
+                  ],
+                ),
               ),
             ),
           ),

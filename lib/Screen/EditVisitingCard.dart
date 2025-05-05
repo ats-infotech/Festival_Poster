@@ -19,6 +19,7 @@ import 'dart:ui' as ui;
 import 'package:photo_frame/Contstant/AppColor.dart';
 import 'package:photo_frame/Contstant/CommonMethod.dart';
 import 'package:photo_frame/Contstant/EditableTextItem.dart';
+import 'package:photo_frame/Contstant/Strings.dart';
 import 'package:photo_frame/Screen/BottomNavBar.dart';
 import 'package:photo_frame/Screen/EditImageScreen.dart';
 import 'package:photo_frame/Triangle.dart';
@@ -698,7 +699,7 @@ class _EditVisitingCardState extends State<EditVisitingCard> {
                     setState(() {});
                   },
                   child: Text(
-                    'Done',
+                    done,
                     style: GoogleFonts.poppins(
                       color: whiteColor,
                       fontWeight: FontWeight.bold,
@@ -1240,7 +1241,7 @@ class _EditVisitingCardState extends State<EditVisitingCard> {
                                                 ),
                                                 child: Center(
                                                   child: Text(
-                                                    "Front Side",
+                                                    frontSide,
                                                     style: GoogleFonts.poppins(
                                                       fontSize: 14,
                                                       fontWeight:
@@ -1277,7 +1278,7 @@ class _EditVisitingCardState extends State<EditVisitingCard> {
                                                     ),
                                                     child: Center(
                                                       child: Text(
-                                                        "Back Side",
+                                                        backSide,
                                                         style:
                                                             GoogleFonts.poppins(
                                                           fontSize: 14,
@@ -1607,7 +1608,7 @@ class _EditVisitingCardState extends State<EditVisitingCard> {
                                                 color: kPrimeryColor,
                                               ),
                                               Text(
-                                                "Add Logo",
+                                                addLogo,
                                                 style: GoogleFonts.poppins(
                                                   fontSize: 16,
                                                   color: kPrimeryColor,
@@ -2448,7 +2449,7 @@ class _EditVisitingCardState extends State<EditVisitingCard> {
                                                   .value = true;
                                             },
                                             child: Text(
-                                              "Write A Text",
+                                              writeAText,
                                               style: GoogleFonts.poppins(
                                                 fontSize: 16,
                                                 fontWeight: FontWeight.w600,
@@ -2990,7 +2991,6 @@ class _EditVisitingCardState extends State<EditVisitingCard> {
 
   Widget logoImage() {
     var h = MediaQuery.of(context).size.height;
-    Offset touchPosition = Offset.zero;
 
     onPanStart(DragStartDetails details) {
       if (shareCardStates[isFrontTap] == true) {
@@ -3017,7 +3017,6 @@ class _EditVisitingCardState extends State<EditVisitingCard> {
       } else {
         editController.isRotate.value = false;
       }
-      touchPosition = details.localPosition;
     }
 
     onPanUpdate(DragUpdateDetails details) {
@@ -3450,8 +3449,6 @@ class _EditVisitingCardState extends State<EditVisitingCard> {
   }
 
   Widget qrCodeItem(XFile? qrLogo) {
-    Offset touchPosition = Offset.zero;
-
     onPanStart(DragStartDetails details) {
       if (shareCardStates[isFrontTap] == true) {
         return null;
@@ -3471,7 +3468,6 @@ class _EditVisitingCardState extends State<EditVisitingCard> {
       } else {
         editController.isRotate.value = false;
       }
-      touchPosition = details.localPosition;
     }
 
     onPanUpdate(DragUpdateDetails details) {
