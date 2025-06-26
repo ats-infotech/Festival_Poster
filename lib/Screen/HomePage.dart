@@ -1205,23 +1205,23 @@ class _HomePageState extends State<HomePage> {
           sourcePath: image!.path,
           compressFormat: ImageCompressFormat.jpg,
           compressQuality: 100,
-          aspectRatioPresets: [
-            CropAspectRatioPreset.square,
-            CropAspectRatioPreset.ratio4x3,
-            CropAspectRatioPreset.original,
-            CropAspectRatioPreset.ratio3x2,
-            CropAspectRatioPreset.ratio16x9,
-          ],
-          androidUiSettings: AndroidUiSettings(
-            toolbarTitle: 'Edit',
-            toolbarColor: grey800Color,
-            toolbarWidgetColor: whiteColor,
-            initAspectRatio: CropAspectRatioPreset.original,
-            lockAspectRatio: false,
-          ),
-          iosUiSettings: const IOSUiSettings(
-            title: 'Edit',
-          ),
+          // aspectRatioPresets: [
+          //   CropAspectRatioPreset.square,
+          //   CropAspectRatioPreset.ratio4x3,
+          //   CropAspectRatioPreset.original,
+          //   CropAspectRatioPreset.ratio3x2,
+          //   CropAspectRatioPreset.ratio16x9,
+          // ],
+          // androidUiSettings: AndroidUiSettings(
+          //   toolbarTitle: 'Edit',
+          //   toolbarColor: grey800Color,
+          //   toolbarWidgetColor: whiteColor,
+          //   initAspectRatio: CropAspectRatioPreset.original,
+          //   lockAspectRatio: false,
+          // ),
+          // iosUiSettings: const IOSUiSettings(
+          //   title: 'Edit',
+          // ),
         );
         if (croppedFile != null) {
           setState(() {

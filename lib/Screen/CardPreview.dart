@@ -1,6 +1,6 @@
 import 'package:google_fonts/google_fonts.dart';
 import 'package:zoom_widget/zoom_widget.dart';
-import 'package:image_gallery_saver/image_gallery_saver.dart';
+// import 'package:image_gallery_saver/image_gallery_saver.dart';
 import 'dart:io';
 
 import 'package:flutter/material.dart';
@@ -85,11 +85,11 @@ class _CardPreviewState extends State<CardPreview> {
           ElevatedButton(
             style: ElevatedButton.styleFrom(backgroundColor: const Color(0xff1E3360)),
             onPressed: () async {
-              final result = await ImageGallerySaver.saveFile(
-                  cardEditController.processBackCardPath.value!);
-              await ImageGallerySaver.saveFile(
-                  cardEditController.processFrontCardPath.value!);
-              print("Image saved to gallery: $result");
+              // final result = await ImageGallerySaver.saveFile(
+              //     cardEditController.processBackCardPath.value!);
+              // await ImageGallerySaver.saveFile(
+              //     cardEditController.processFrontCardPath.value!);
+              // print("Image saved to gallery: $result");
             },
             child: Text(
               'Download Card',

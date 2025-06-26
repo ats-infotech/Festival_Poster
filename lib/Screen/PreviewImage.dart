@@ -4,7 +4,7 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:photo_frame/Contstant/AppColor.dart';
 import 'package:photo_frame/Contstant/Strings.dart';
 import 'package:photo_view/photo_view.dart';
-import 'package:share_extend/share_extend.dart';
+// import 'package:share_extend/share_extend.dart';
 import 'package:share_plus/share_plus.dart';
 import 'package:permission_handler/permission_handler.dart';
 
@@ -31,8 +31,8 @@ class _PreviewImageState extends State<PreviewImage> {
       if (Platform.isAndroid) {
         var storageStatus = await Permission.storage.request();
         if (storageStatus.isGranted) {
-          ShareExtend.share(widget.image[_pageController.page!.toInt()].path,
-              "${DateTime.now().millisecondsSinceEpoch}.png");
+          // ShareExtend.share(widget.image[_pageController.page!.toInt()].path,
+          //     "${DateTime.now().millisecondsSinceEpoch}.png");
         }
 
         // Request permission for Android 13+

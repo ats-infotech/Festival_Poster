@@ -11,7 +11,7 @@ import 'package:flutter/rendering.dart';
 import 'package:flutter_drawing_board/flutter_drawing_board.dart';
 import 'package:flutter_drawing_board/helpers.dart';
 import 'package:flutter_drawing_board/paint_contents.dart';
-import 'package:gallery_saver/gallery_saver.dart';
+// import 'package:gallery_saver/gallery_saver.dart';
 import 'package:get/get.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:image_picker/image_picker.dart';
@@ -25,7 +25,7 @@ import 'package:photo_frame/Screen/EditImageScreen.dart';
 import 'package:photo_frame/Triangle.dart';
 import 'package:pretty_qr_code/pretty_qr_code.dart';
 import 'package:path_provider/path_provider.dart';
-import 'package:share_extend/share_extend.dart';
+// import 'package:share_extend/share_extend.dart';
 
 String duplicate = "";
 bool isFrontTap = true;
@@ -750,8 +750,8 @@ class _EditVisitingCardState extends State<EditVisitingCard> {
       }
 
       print("-------- image File ------ ${imageFile.path}");
-      await GallerySaver.saveImage(imageFile.path,
-          albumName: "Festival Poster");
+      // await GallerySaver.saveImage(imageFile.path,
+          // albumName: "Festival Poster");
       imageSaveSuccessDialog(
         context,
         () {
@@ -775,7 +775,7 @@ class _EditVisitingCardState extends State<EditVisitingCard> {
       final tempDir = await getTemporaryDirectory();
       final file = File('${tempDir.path}/$filename');
       await file.writeAsBytes(bytes);
-      await ShareExtend.share(file.path, 'Visiting Card');
+      // await ShareExtend.share(file.path, 'Visiting Card');
     } catch (e) {
       print("------------- Image Share Error ----------- $e");
     }

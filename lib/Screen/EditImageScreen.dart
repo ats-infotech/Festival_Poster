@@ -6,7 +6,7 @@ import 'package:crop_image/crop_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:flutter/services.dart';
-import 'package:gallery_saver/gallery_saver.dart';
+// import 'package:gallery_saver/gallery_saver.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:get/get.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -19,7 +19,7 @@ import 'package:photo_frame/Screen/BottomNavBar.dart';
 import 'package:photo_frame/Screen/HomePage.dart';
 import 'package:photo_frame/service/firebase_analytics_service.dart';
 import 'package:photo_view/photo_view.dart';
-import 'package:share_extend/share_extend.dart';
+// import 'package:share_extend/share_extend.dart';
 
 EditController editController = Get.put(EditController());
 Rxn<int> selectedIndexPost = Rxn();
@@ -558,8 +558,8 @@ class _EditImageScreenState extends State<EditImageScreen> {
       await imageFile.writeAsBytes(bytes!);
 
       print("-------- image File ------ ${imageFile.path}");
-      await GallerySaver.saveImage(imageFile.path,
-          albumName: "Festival Poster");
+      // await GallerySaver.saveImage(imageFile.path,
+      //     albumName: "Festival Poster");
 
       FirebaseAnalyticsService.instance.logEvent(
           name: 'save_template', parameters: {'name': templateSearchName});
@@ -583,7 +583,7 @@ class _EditImageScreenState extends State<EditImageScreen> {
       final tempDir = await getTemporaryDirectory();
       final file = File('${tempDir.path}/$filename');
       await file.writeAsBytes(bytes);
-      await ShareExtend.share(file.path, 'image');
+      // await ShareExtend.share(file.path, 'image');
     } catch (e) {
       print("------------- Image Share Error ----------- $e");
     }
