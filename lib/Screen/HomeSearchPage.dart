@@ -1534,10 +1534,10 @@ class _HomeSearchPageState extends State<HomeSearchPage> {
                     ),
                     cursorColor: blackColor,
                     autofocus: true,
-                    onChanged: (value) {
+                    onChanged: (value) async {
                       searchData(value);
                       searchTemplateData(value);
-                      FirebaseAnalyticsService.instance.logEvent(
+                    await  FirebaseAnalyticsService.instance.logEvent(
                           name: 'search', parameters: {"query": value});
                       setState(() {});
                     },
@@ -1621,7 +1621,7 @@ class _HomeSearchPageState extends State<HomeSearchPage> {
                             child: Container(
                               margin: const EdgeInsets.only(
                                   bottom: 25, left: 20, right: 20),
-                              child: rowText(patrioticDay, viewAll, () {
+                              child: rowText(patrioticDay, viewAll, () async {
                                 tabTap = 1;
                                 Navigator.push(
                                   context,
@@ -1631,7 +1631,7 @@ class _HomeSearchPageState extends State<HomeSearchPage> {
                                     child: const Templates(scrollPosition: 0),
                                   ),
                                 );
-                                FirebaseAnalyticsService.instance.logEvent(
+                              await  FirebaseAnalyticsService.instance.logEvent(
                                     name: 'view_all',
                                     parameters: {'name': 'Patriotic Day'});
                               }),
@@ -1691,7 +1691,7 @@ class _HomeSearchPageState extends State<HomeSearchPage> {
                               child: rowText(
                                 transparentVisitingCard,
                                 viewAll,
-                                () {
+                                () async {
                                   tabTap = 4;
                                   Navigator.push(
                                     context,
@@ -1702,7 +1702,7 @@ class _HomeSearchPageState extends State<HomeSearchPage> {
                                           const Templates(scrollPosition: 320),
                                     ),
                                   );
-                                  FirebaseAnalyticsService.instance.logEvent(
+                                await  FirebaseAnalyticsService.instance.logEvent(
                                       name: 'view_all',
                                       parameters: {
                                         'name': 'Transparent Visiting Card'
@@ -1767,7 +1767,7 @@ class _HomeSearchPageState extends State<HomeSearchPage> {
                               child: rowText(
                                 foldedVisitingCards,
                                 viewAll,
-                                () {
+                                () async {
                                   tabTap = 4;
                                   Navigator.push(
                                     context,
@@ -1778,7 +1778,7 @@ class _HomeSearchPageState extends State<HomeSearchPage> {
                                           const Templates(scrollPosition: 320),
                                     ),
                                   );
-                                  FirebaseAnalyticsService.instance.logEvent(
+                                 await FirebaseAnalyticsService.instance.logEvent(
                                       name: 'view_all',
                                       parameters: {
                                         'name': 'Folded Visiting Cards'
@@ -1840,7 +1840,7 @@ class _HomeSearchPageState extends State<HomeSearchPage> {
                             child: Container(
                               margin: const EdgeInsets.symmetric(
                                   horizontal: 20, vertical: 25),
-                              child: rowText(festivalDay, viewAll, () {
+                              child: rowText(festivalDay, viewAll, () async {
                                 tabTap = 2;
                                 Navigator.push(
                                   context,
@@ -1850,7 +1850,7 @@ class _HomeSearchPageState extends State<HomeSearchPage> {
                                     child: const Templates(scrollPosition: 100),
                                   ),
                                 );
-                                FirebaseAnalyticsService.instance.logEvent(
+                               await FirebaseAnalyticsService.instance.logEvent(
                                     name: 'view_all',
                                     parameters: {'name': 'Festival Day'});
                               }),
@@ -1911,7 +1911,7 @@ class _HomeSearchPageState extends State<HomeSearchPage> {
                               child: rowText(
                                 premiumVisitingCard,
                                 viewAll,
-                                () {
+                                () async {
                                   tabTap = 4;
                                   Navigator.push(
                                     context,
@@ -1922,7 +1922,7 @@ class _HomeSearchPageState extends State<HomeSearchPage> {
                                           const Templates(scrollPosition: 320),
                                     ),
                                   );
-                                  FirebaseAnalyticsService.instance.logEvent(
+                                 await FirebaseAnalyticsService.instance.logEvent(
                                       name: 'view_all',
                                       parameters: {
                                         'name': 'Premium Visiting Card'
@@ -1984,7 +1984,7 @@ class _HomeSearchPageState extends State<HomeSearchPage> {
                             child: Container(
                               margin: const EdgeInsets.symmetric(
                                   horizontal: 20, vertical: 25),
-                              child: rowText(specialDay, viewAll, () {
+                              child: rowText(specialDay, viewAll, () async {
                                 tabTap = 3;
                                 Navigator.push(
                                   context,
@@ -1994,7 +1994,7 @@ class _HomeSearchPageState extends State<HomeSearchPage> {
                                     child: const Templates(scrollPosition: 250),
                                   ),
                                 );
-                                FirebaseAnalyticsService.instance.logEvent(
+                              await  FirebaseAnalyticsService.instance.logEvent(
                                     name: 'view_all',
                                     parameters: {'name': 'Special Day'});
                               }),
@@ -2054,7 +2054,7 @@ class _HomeSearchPageState extends State<HomeSearchPage> {
                               child: rowText(
                                 photographicVisitingCards,
                                 viewAll,
-                                () {
+                                () async {
                                   tabTap = 4;
                                   Navigator.push(
                                     context,
@@ -2065,7 +2065,7 @@ class _HomeSearchPageState extends State<HomeSearchPage> {
                                           const Templates(scrollPosition: 320),
                                     ),
                                   );
-                                  FirebaseAnalyticsService.instance.logEvent(
+                                await  FirebaseAnalyticsService.instance.logEvent(
                                       name: 'view_all',
                                       parameters: {
                                         'name': 'Photographic Visiting Cards'

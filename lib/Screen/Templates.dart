@@ -11,6 +11,7 @@ import 'package:photo_frame/Contstant/Strings.dart';
 import 'package:photo_frame/Screen/EditImageScreen.dart';
 import 'package:photo_frame/Screen/EditVisitingCard.dart';
 import 'package:photo_frame/Screen/HomePage.dart';
+import 'package:photo_frame/Screen/saveImageShow.dart';
 import 'package:photo_frame/service/firebase_analytics_service.dart';
 import 'package:shimmer/shimmer.dart';
 
@@ -170,8 +171,8 @@ class _TemplatesState extends State<Templates> {
             fontWeight: FontWeight.w600,
           ),
         ),
-        leading: GestureDetector(
-          onTap: () {
+        leading: IconButton(
+          onPressed: () {
             drawerContainer = 0;
             isPatrioticImageTap = false;
             isFestivalImageTap = false;
@@ -179,10 +180,7 @@ class _TemplatesState extends State<Templates> {
             Navigator.of(context).pop();
             setState(() {});
           },
-          child: const Icon(
-            Icons.arrow_back_rounded,
-            color: whiteColor,
-          ),
+          icon: commonBackArrow(),
         ),
         actions: [
           isSerachTap == true
@@ -257,9 +255,9 @@ class _TemplatesState extends State<Templates> {
                             ),
                             cursorColor: kPrimeryColor,
                             focusNode: focusNode,
-                            onChanged: (value) {
+                            onChanged: (value) async {
                               serchData(value);
-                              FirebaseAnalyticsService.instance.logEvent(
+                              await FirebaseAnalyticsService.instance.logEvent(
                                   name: 'search_template',
                                   parameters: {"query": value});
                               setState(() {});

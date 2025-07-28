@@ -3090,8 +3090,6 @@ class _EditCardSCreenWebState extends State<EditCardSCreenWeb> {
   }
 
   Widget logoImage() {
-
-
     // onPanStart(DragStartDetails details) {
     //   if (shareCardStates[isFrontTap] == true) {
     //     return null;
@@ -4579,7 +4577,6 @@ class _EditCardSCreenWebState extends State<EditCardSCreenWeb> {
   }
 
   Widget qrCodeItem(Uint8List? qrLogo) {
-
     onPanStart(DragStartDetails details) {
       if (shareCardStates[isFrontTap] == true) {
         return null;

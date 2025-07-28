@@ -10,6 +10,8 @@ import 'package:photo_frame/Contstant/itemModel.dart';
 class EditController extends GetxController {
   RxInt functionTap = (-1).obs;
   // RxBool isBoxTap = false.obs;
+  var savedImagePath = "".obs;
+
   Rx<Color> textBlackColor = blackColor.obs;
   Rx<Color> filterContainerColor = transparentColor.obs;
   Rx<Color> forgroundStrokeColor = blackColor.obs;
@@ -19,6 +21,7 @@ class EditController extends GetxController {
   Rx<FontStyle> fontStyle = FontStyle.normal.obs;
   FocusNode focusNode = FocusNode();
   RxInt logoIndex = 1.obs;
+  RxInt selectedSaveTab = 0.obs;
   // var sides = 7;
   // var radius = 100.0;
   var pickLogo = Rx<File?>(null);
@@ -31,6 +34,8 @@ class EditController extends GetxController {
   Rxn<XFile> pickedFile = Rxn();
   var frontImage = Rx<File?>(null);
   var backImage = Rx<File?>(null);
+  RxString selectedAudioPath = ''.obs;
+  RxBool isPickAudioIconTap = false.obs;
 
   RxList sizeList = [
     {

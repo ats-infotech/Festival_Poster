@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:photo_frame/Contstant/AppColor.dart';
 import 'package:photo_frame/Contstant/CommonMethod.dart';
+import 'package:photo_frame/Screen/saveImageShow.dart';
 import 'package:webview_flutter/webview_flutter.dart';
 
 class PrivacyPolicy extends StatefulWidget {
@@ -47,11 +48,7 @@ class _PrivacyPolicyState extends State<PrivacyPolicy> {
         children: [
           WebViewWidget(controller: webViewController),
           if (isLoading)
-            const Center(
-              child: CircularProgressIndicator(
-                color: kPrimeryColor,
-              ),
-            ),
+           commonLoader(),
           Container(
             alignment: Alignment.topRight,
             height: 80,

@@ -1,11 +1,18 @@
+import 'dart:async';
+import 'dart:developer';
 import 'dart:io';
-import 'dart:math';
+import 'dart:math' hide log;
 import 'dart:ui' as ui;
-import 'dart:ui';
+import 'package:audio_waveforms/audio_waveforms.dart';
 import 'package:crop_image/crop_image.dart';
+import 'package:ffmpeg_kit_flutter_new/ffmpeg_kit.dart';
+import 'package:ffmpeg_kit_flutter_new/return_code.dart';
+import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:flutter/services.dart';
+import 'package:gallery_saver_plus/gallery_saver.dart';
+import 'package:just_audio/just_audio.dart';
 // import 'package:gallery_saver/gallery_saver.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:get/get.dart';
@@ -17,8 +24,12 @@ import 'package:photo_frame/Contstant/itemModel.dart';
 import 'package:photo_frame/Contstant/CommonMethod.dart';
 import 'package:photo_frame/Screen/BottomNavBar.dart';
 import 'package:photo_frame/Screen/HomePage.dart';
+import 'package:photo_frame/Screen/PreviewImage.dart';
+import 'package:photo_frame/Screen/VideoPreviewScreen.dart';
+import 'package:photo_frame/Screen/saveImageShow.dart';
 import 'package:photo_frame/service/firebase_analytics_service.dart';
 import 'package:photo_view/photo_view.dart';
+import 'package:share_plus/share_plus.dart';
 // import 'package:share_extend/share_extend.dart';
 
 EditController editController = Get.put(EditController());
@@ -47,8 +58,36 @@ class _EditImageScreenState extends State<EditImageScreen> {
   Item? selectedItem;
   TransformationController transformationController =
       TransformationController();
-
+  Duration safePosition = Duration.zero;
+  bool isVideoGenerated = false;
   String duplicate = "";
+  final AudioPlayer player = AudioPlayer();
+  PlayerController? waveformController;
+  // String? selectedAudioPath;
+  String? selectedAudioName;
+  String? videoPath;
+  bool waveformReady = false;
+  Duration playbackStartPosition = Duration.zero;
+  bool shouldAutoPlay = false;
+  Duration position = Duration.zero;
+  Duration duration = Duration.zero;
+  GlobalKey globalKey = GlobalKey();
+  var remaining = 0;
+  String formatDurationToHMS(Duration duration) {
+    String twoDigits(int n) => n.toString().padLeft(2, '0');
+
+    final hours = duration.inHours;
+    final minutes = duration.inMinutes.remainder(60);
+    final seconds = duration.inSeconds.remainder(60);
+
+    if (hours == 0 && minutes == 0) {
+      return "${seconds}s";
+    } else if (hours == 0) {
+      return "${twoDigits(minutes)}:${twoDigits(seconds)}";
+    } else {
+      return "${twoDigits(hours)}:${twoDigits(minutes)}:${twoDigits(seconds)}";
+    }
+  }
 
   List<double> fontSizeList = [
     8.0,
@@ -326,9 +365,9 @@ class _EditImageScreenState extends State<EditImageScreen> {
       () => Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          Transform.rotate(
-            angle: editController.angle.value,
-          ),
+          // Transform.rotate(
+          //   angle: editController.angle.value,
+          // ),
           SizedBox(
             height: 80,
             child: Theme(
@@ -532,49 +571,292 @@ class _EditImageScreenState extends State<EditImageScreen> {
     );
   }
 
-  Future<void> _saveImageToGallery(GlobalKey key) async {
+  bool isDragging = false;
+
+  //new
+
+  Widget audioWavePath() {
+    const double waveHeight = 50.0;
+    const double containerWidth = 120.0;
+
+    return Column(
+      children: [
+        Stack(
+          children: [
+            ShaderMask(
+              shaderCallback: (Rect bounds) {
+                return LinearGradient(
+                  colors: [
+                    Colors.grey.shade400, // Left side grey
+                    Colors.grey.shade400,
+                    kPrimeryColor, // Center colored
+                    kPrimeryColor,
+                    Colors.grey.shade400, // Right side grey
+                    Colors.grey.shade400,
+                  ],
+                  stops: [
+                    0.0,
+                    (0.5 - (containerWidth / 2) / bounds.width).clamp(0.0, 1.0),
+                    (0.5 - (containerWidth / 2) / bounds.width).clamp(0.0, 1.0),
+                    (0.5 + (containerWidth / 2) / bounds.width).clamp(0.0, 1.0),
+                    (0.5 + (containerWidth / 2) / bounds.width).clamp(0.0, 1.0),
+                    1.0,
+                  ],
+                ).createShader(bounds);
+              },
+              blendMode: BlendMode.srcATop,
+              child: AudioFileWaveforms(
+                playerController: waveformController!,
+                enableSeekGesture: true,
+                waveformType: WaveformType.long,
+                size: const Size(double.infinity, waveHeight),
+                playerWaveStyle: PlayerWaveStyle(
+                  fixedWaveColor: Colors.grey.shade400,
+                  liveWaveColor: Colors.grey.shade400,
+                  seekLineColor: Colors.black,
+                  spacing: 4.5,
+                  waveThickness: 3.5,
+                  showSeekLine: true,
+                  showBottom: true,
+                  waveCap: StrokeCap.round,
+                  scaleFactor: 150,
+                ),
+                onDragStart: (details) async {
+                  isDragging = true;
+                  log("🎯 Drag Start -> $details");
+                  if (player.playing) {
+                    await player.pause();
+                    await waveformController?.pausePlayer();
+                  }
+                },
+                onDragEnd: (details) async {
+                  final newMs = await waveformController
+                          ?.getDuration(DurationType.current) ??
+                      0;
+
+                  final safeMs = newMs >= duration.inMilliseconds
+                      ? duration.inMilliseconds - 10
+                      : newMs;
+
+                  final safePos = Duration(milliseconds: safeMs);
+
+                  await player.seek(safePos);
+                  await waveformController?.seekTo(safeMs);
+
+                  await player.play();
+                  await waveformController?.startPlayer();
+
+                  setState(() {
+                    position = safePos;
+                    isDragging = false;
+                  });
+
+                  log("🎯 Drag End -> Synced to: $safePos");
+                },
+              ),
+            ),
+            Positioned(
+              right: 0,
+              left: 0,
+              child: IgnorePointer(
+                child: Center(
+                  child: Container(
+                    height: waveHeight,
+                    width: containerWidth,
+                    decoration: BoxDecoration(
+                      borderRadius: BorderRadius.circular(5),
+                      color: transparentColor,
+                      border: Border.all(color: kPrimeryColor),
+                    ),
+                  ),
+                ),
+              ),
+            ),
+          ],
+        ),
+        const SizedBox(height: 20),
+        Text(
+          'Playback: ${formatDurationToHMS(position)} / ${formatDurationToHMS(duration)}',
+          style: const TextStyle(fontSize: 14),
+        ),
+      ],
+    );
+  }
+
+  Future<String> generateVideo({
+    required String imagePath,
+    required String audioPath,
+    required String outputPath,
+    required Duration startTime,
+  }) async {
+    // Ensure output directory exists
+    final File outFile = File(outputPath);
+    if (!await outFile.parent.exists()) {
+      await outFile.parent.create(recursive: true);
+    }
+    // Convert start time to seconds
+    final String startTimeString = startTime.inSeconds.toString();
+    log("==========>>StartTime=======${startTimeString}");
+    final arguments = [
+      '-y', // <-- Overwrite output file if exists
+      '-loop', '1',
+      '-i', imagePath,
+      '-i', audioPath,
+      '-ss', startTimeString,
+      '-t', '15',
+      '-c:v', 'libx264',
+      '-tune', 'stillimage',
+      '-pix_fmt', 'yuv420p',
+      '-c:a', 'aac',
+      '-b:a', '192k',
+      outputPath,
+    ];
+
+    print("📦 FFmpeg Arguments: $arguments");
+
+    final session = await FFmpegKit.executeWithArguments(arguments);
+    final returnCode = await session.getReturnCode();
+
+    if (ReturnCode.isSuccess(returnCode)) {
+      print("✅ FFmpeg succeeded");
+      return outputPath;
+    } else {
+      final logs = await session.getAllLogsAsString();
+      final failReason = await session.getFailStackTrace();
+      throw Exception(
+          'Video generation failed:\n$logs\nStackTrace:\n$failReason');
+    }
+  }
+
+  // Future<String> getOutputPath() async {
+  //   final Directory? dir = await getExternalStorageDirectory();
+  //   if (!await dir!.exists()) {
+  //     await dir.create(recursive: true);
+  //   }
+  //   final String timestamp = DateTime.now().millisecondsSinceEpoch.toString();
+  //   return '${dir.path}/output_video_$timestamp.mp4';
+  // }
+  Future<Directory> getFestivalFolder() async {
+    final Directory dir =
+        Directory('/storage/emulated/0/Pictures/Festival Poster');
+    if (!await dir.exists()) {
+      await dir.create(recursive: true);
+    }
+    return dir;
+  }
+
+  Future<void> _saveImageToGallery(GlobalKey key,
+      {bool saveImage = true}) async {
     try {
+      await player.stop();
+      await waveformController?.stopPlayer();
       editController.show.value = false;
       editController.isImageShow.value = false;
       editController.isImageSaveLoader.value = true;
 
       await Future.delayed(const Duration(milliseconds: 300));
-
       RenderRepaintBoundary boundary =
           key.currentContext!.findRenderObject() as RenderRepaintBoundary;
       ui.Image image = await boundary.toImage(pixelRatio: 3.0);
       ByteData? byteData =
           await image.toByteData(format: ui.ImageByteFormat.png);
-      bytes = byteData!.buffer.asUint8List();
+      Uint8List bytes = byteData!.buffer.asUint8List();
 
-      final Directory? directory = await getExternalStorageDirectory();
-      print("------- Folder Path ---------- $directory");
-      if (!directory!.existsSync()) {
-        await directory.create(recursive: true);
+      String fileName = getSafeFileName(templateName, "jpg");
+
+      // Save image directly to gallery -> Festival Poster folder
+      final Directory tempDir = await getTemporaryDirectory();
+      final tempFile = File("${tempDir.path}/$fileName");
+      await tempFile.writeAsBytes(bytes);
+
+      if (saveImage == true) {
+        bool? imageSaved = await GallerySaver.saveImage(
+          tempFile.path,
+          albumName: "Festival Poster",
+        );
+
+        if (imageSaved != true) {
+          throw Exception("Failed to save image to gallery");
+        }
       }
 
-      String fileName = "${DateTime.now()}_$templateName.jpg";
-      final File imageFile = File("${directory.path}/$fileName");
-      await imageFile.writeAsBytes(bytes!);
+      // Save path to controller (optional: for sharing purposes)
+      editController.savedImagePath.value = tempFile.path;
 
-      print("-------- image File ------ ${imageFile.path}");
-      // await GallerySaver.saveImage(imageFile.path,
-      //     albumName: "Festival Poster");
+      if (saveImage == false) {
+        if (editController.selectedAudioPath.value.isNotEmpty) {
+          final remaining = duration - position;
+          if (remaining.inSeconds < 15) {
+            editController.isImageSaveLoader.value = false;
+            showCommonSnackBar(context,
+                "Please select audio with at least 15 seconds remaining.");
+            return;
+          }
 
-      FirebaseAnalyticsService.instance.logEvent(
+          final Directory festivalDir = await getFestivalFolder();
+          final outputPath =
+              "${festivalDir.path}/output_video_${DateTime.now().millisecondsSinceEpoch}.mp4";
+
+          videoPath = await generateVideo(
+            imagePath: tempFile.path,
+            audioPath: editController.selectedAudioPath.value,
+            outputPath: outputPath,
+            startTime: position,
+          );
+
+          bool? videoSaved = await GallerySaver.saveVideo(
+            videoPath!,
+            albumName: "Festival Poster",
+          );
+
+          if (videoSaved != true) {
+            throw Exception("Failed to save video to gallery");
+          }
+
+          editController.isImageSaveLoader.value = false;
+          editController.isShareImage.value = true;
+
+          Get.offAll(
+              () => VideoPreviewScreen(file: File(videoPath!), fromEdit: true));
+
+          imageSaveSuccessDialog(context, () {
+            shareVideo(videoPath!);
+            Future.delayed(Duration(milliseconds: 500));
+            Get.back();
+          }, image: false);
+        }
+      } else {
+        editController.isImageSaveLoader.value = false;
+        editController.isShareImage.value = true;
+        Get.offAll(() => PreviewImage(
+              image: [tempFile],
+              index: 0,
+              fromEdit: true,
+            ));
+
+        imageSaveSuccessDialog(context, () {
+          shareImage(bytes, fileName);
+          Future.delayed(Duration(milliseconds: 500));
+          Get.back();
+        }, image: true);
+      }
+
+     await FirebaseAnalyticsService.instance.logEvent(
           name: 'save_template', parameters: {'name': templateSearchName});
-      editController.isImageSaveLoader.value = false;
-      imageSaveSuccessDialog(
-        context,
-        () {
-          shareImage(bytes!, fileName);
-          Navigator.of(context).pop();
-        },
-      );
     } catch (e) {
       print("-------- Save Image Error ------- $e");
       editController.isImageSaveLoader.value = false;
+      showCommonSnackBar(context, "Failed to save. Please try again.");
     }
+  }
+
+  String getSafeFileName(String templateName, String extension) {
+    final String timestamp = DateTime.now()
+        .toIso8601String()
+        .replaceAll(':', '-') // Replace : with -
+        .replaceAll(' ', '_'); // Replace space with _
+
+    return "${timestamp}_$templateName.$extension";
   }
 
   // Image Share
@@ -584,16 +866,110 @@ class _EditImageScreenState extends State<EditImageScreen> {
       final file = File('${tempDir.path}/$filename');
       await file.writeAsBytes(bytes);
       // await ShareExtend.share(file.path, 'image');
+      XFile xfile = XFile(file.path);
+      await Share.shareXFiles([xfile], text: 'image');
     } catch (e) {
       print("------------- Image Share Error ----------- $e");
     }
+  }
+
+  Future<void> shareVideo(String videoPath) async {
+    try {
+      XFile xfile = XFile(videoPath);
+      await Share.shareXFiles([xfile], text: 'video');
+    } catch (e) {
+      print("------------- Video Share Error ----------- $e");
+    }
+  }
+
+  Future<void> pickAndPlayAudio() async {
+    final result = await FilePicker.platform.pickFiles(type: FileType.audio);
+
+    if (result == null || result.files.single.path == null) {
+      print('User canceled audio picker');
+      editController.isPickAudioIconTap.value = false;
+      return;
+    }
+
+    editController.isPickAudioIconTap.value = true;
+    final filePath = result.files.single.path!;
+    selectedAudioName = result.files.single.name;
+    editController.selectedAudioPath.value = filePath;
+    await player.stop();
+    await waveformController?.stopPlayer();
+
+    waveformReady = false;
+    setState(() {});
+
+    print('Picked audio file: $filePath');
+
+    try {
+      await waveformController?.preparePlayer(path: filePath);
+      await player.setFilePath(filePath);
+
+      // ✅ FIXED HERE:
+      duration = player.duration ?? Duration.zero;
+
+      await player.setLoopMode(LoopMode.all);
+
+      player.positionStream.listen((pos) {
+        if (!isDragging) {
+          setState(() {
+            position = pos;
+          });
+
+          waveformController?.seekTo(pos.inMilliseconds);
+        }
+      });
+
+      player.durationStream.listen((dur) {
+        if (dur != null) {
+          setState(() => duration = dur);
+        }
+      });
+      // player.playerStateStream.listen((state) {
+      //   print("Player state: $state");
+
+      //   if (state.processingState == ProcessingState.completed) {
+      //     shouldAutoPlay = true;
+      //   }
+      // });
+      await player.seek(playbackStartPosition);
+
+      await Future.delayed(const Duration(milliseconds: 200));
+
+      await waveformController?.startPlayer();
+      await player.play();
+
+      setState(() {
+        waveformReady = true;
+      });
+    } catch (e) {
+      print('Error playing audio: $e');
+    }
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    // loadImage();
+
+    log("image=====>>>${widget.image}");
+    log("wallpaper=====>>>${widget.wallPaper}");
+    waveformController = PlayerController();
+  }
+
+  @override
+  void dispose() {
+    player.dispose();
+    waveformController?.dispose();
+    super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
     var h = MediaQuery.of(context).size.height;
     var w = MediaQuery.of(context).size.width;
-    GlobalKey globalKey = GlobalKey();
 
     return Scaffold(
       resizeToAvoidBottomInset: false,
@@ -617,9 +993,10 @@ class _EditImageScreenState extends State<EditImageScreen> {
                   editController.isRotateTap.value == true ||
                   editController.isSizeBoxTap.value == true ||
                   editController.isLogoImageTap.value == true ||
-                  editController.isImageShow.value == true
-              ? GestureDetector(
-                  onTap: () {
+                  editController.isImageShow.value == true ||
+                  editController.isPickAudioIconTap.value == true
+              ? IconButton(
+                  onPressed: () async {
                     editController.isFilterTap.value == true
                         ? {
                             editController.isFilterTap.value = false,
@@ -669,15 +1046,23 @@ class _EditImageScreenState extends State<EditImageScreen> {
                                 editController.isImageShow.value = false,
                                 editController.pickLogos.removeLast(),
                               }
-                            : null;
+                            : editController.isPickAudioIconTap.value == true
+                                ? {
+                                    editController.selectedAudioPath.value = "",
+                                    editController.isPickAudioIconTap.value =
+                                        false,
+                                    await player.stop(),
+                                    await waveformController!.stopPlayer(),
+                                  }
+                                : null;
                   },
-                  child: const Icon(
+                  icon: const Icon(
                     Icons.close,
                     color: whiteColor,
                   ),
                 )
-              : GestureDetector(
-                  onTap: () {
+              : IconButton(
+                  onPressed: () async {
                     isPatrioticImageTap = false;
                     isFestivalImageTap = false;
                     isSpecialImageTap = false;
@@ -724,6 +1109,10 @@ class _EditImageScreenState extends State<EditImageScreen> {
                     editController.pickLogosCardBackSide.clear();
                     isSliderImageTap = false;
                     editController.checkBoxValue.value = false;
+                    editController.isPickAudioIconTap.value = false;
+                    editController.selectedAudioPath.value = "";
+                    await player.stop();
+                    await waveformController!.stopPlayer();
                     Get.offAll(
                       transition: Transition.rightToLeftWithFade,
                       () => const BottomNavBarBar(),
@@ -731,88 +1120,124 @@ class _EditImageScreenState extends State<EditImageScreen> {
 
                     setState(() {});
                   },
-                  child: const Icon(
-                    Icons.arrow_back_rounded,
-                    color: whiteColor,
-                  ),
+                  icon: commonBackArrow(),
                 ),
         ),
         actions: [
           Padding(
-            padding: const EdgeInsets.all(12.0),
+            padding: const EdgeInsets.symmetric(vertical: 10.0),
             child: Obx(
               () => editController.isShareImage.value == false
-                  ? GestureDetector(
-                      onTap: () async {
-                        await _saveImageToGallery(globalKey);
-                        editController.pickLogos.clear();
+                  ? IconButton(
+                      onPressed: editController.isImageSaveLoader.value == true
+                          ? null
+                          : () async {
+                              pickAndPlayAudio();
+                            },
+                      icon: const Icon(
+                        Icons.music_note,
+                        color: whiteColor,
+                      ),
+                    )
+                  : Container(),
+            ),
+          ),
+          Padding(
+              padding: const EdgeInsets.all(12.0),
+              child: Obx(
+                () => GestureDetector(
+                  onTap: editController.isImageSaveLoader.value == true
+                      ? null
+                      : () async {
+                          final RenderBox overlay = Overlay.of(context)
+                              .context
+                              .findRenderObject() as RenderBox;
 
-                        editController.isShareImage.value = true;
-                      },
-                      child: editController.isFilterTap.value == true ||
-                              editController.isTextTap.value == true ||
-                              editController.isContrastTap.value == true ||
-                              editController.isRotateTap.value == true ||
-                              editController.isSizeBoxTap.value == true ||
-                              editController.isLogoImageTap.value == true ||
-                              editController.isImageShow.value == true
-                          ? IconButton(
-                              onPressed: () async {
-                                editController.isFilterTap.value == true
-                                    ? {
-                                        editController.isFilterTap.value =
-                                            false,
-                                      }
-                                    : null;
+                          final selected = await showMenu<String>(
+                            context: context,
+                            position: RelativeRect.fromLTRB(
+                              overlay.size.width - 150,
+                              kToolbarHeight + 10,
+                              10,
+                              0,
+                            ),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(7),
+                            ),
+                            items: [
+                              PopupMenuItem<String>(
+                                  value: 'image',
+                                  padding: EdgeInsets.zero,
+                                  child: popUpRow(
+                                      label: "Save as Image",
+                                      icon: Icons.image)),
+                              PopupMenuItem<String>(
+                                  value: 'video',
+                                  padding: EdgeInsets.zero,
+                                  child: popUpRow(
+                                      label: "Save as Video",
+                                      icon: Icons.video_library)),
+                            ],
+                          );
 
-                                editController.isTextTap.value == true
-                                    ? {
-                                        editController.isTextTap.value = false,
-                                        text = editController
-                                            .textController.value.text,
-                                        editController.isEditIconTap.value ==
-                                                true
-                                            ? editController.items[
-                                                    selectedIndexPost.value!] =
-                                                Item(
-                                                parentKey:
-                                                    selectedItem!.parentKey,
-                                                size: selectedItem!.size,
-                                                offset: selectedItem!.offset,
-                                                rotation:
-                                                    selectedItem!.rotation,
-                                                text: text,
-                                                textColor: editController
-                                                    .textBlackColor.value,
-                                                fontSize: editController
-                                                    .selectedFontSize.value,
-                                                fontWeight: editController
-                                                    .fontWeight.value,
-                                                textDecoration: editController
-                                                    .textDecoration.value,
-                                                fontStyle: editController
-                                                    .fontStyle.value,
-                                                selectTitle: editController
-                                                    .selectedTitle.value,
-                                                fontFamily: editController
-                                                    .selectedFontFamily.value,
-                                                isStrokeCheck: editController
-                                                    .checkBoxValue.value,
-                                                strokeWidth: editController
-                                                    .selectedStrokeWidth.value,
-                                                forgroundColor: editController
-                                                    .forgroundStrokeColor.value,
-                                                backgroundColor: editController
-                                                    .backgroundStrokeColor
-                                                    .value,
-                                              )
-                                            : editController.items.add(
-                                                Item(
-                                                  parentKey: GlobalKey(),
-                                                  size: const Size(100, 100),
-                                                  offset:
-                                                      const Offset(100, 100),
-                                                  rotation: 0,
+                          if (selected == 'image') {
+                            await _saveImageToGallery(globalKey,
+                                saveImage: true);
+                            editController.pickLogos.clear();
+                          } else if (selected == 'video') {
+                            log("editController.selectedAudioPath.value====>>${editController.selectedAudioPath.value}");
+                            if (editController.selectedAudioPath.value == "" &&
+                                editController
+                                    .selectedAudioPath.value.isEmpty) {
+                              editController.isImageSaveLoader.value = false;
+                              showCommonSnackBar(
+                                  context, "Please select audio.");
+                            } else {
+                              log("editController.selectedAudioPath.value====>>is not empty");
+
+                              await _saveImageToGallery(globalKey,
+                                  saveImage: false);
+                              editController.pickLogos.clear();
+                            }
+                          }
+                        },
+                  child: editController.isFilterTap.value == true ||
+                          editController.isTextTap.value == true ||
+                          editController.isContrastTap.value == true ||
+                          editController.isRotateTap.value == true ||
+                          editController.isSizeBoxTap.value == true ||
+                          editController.isLogoImageTap.value == true ||
+                          editController.isImageShow.value == true ||
+                          editController.isPickAudioIconTap.value == true
+                      ? IconButton(
+                          onPressed: editController.isImageSaveLoader.value ==
+                                  true
+                              ? null
+                              : () async {
+                                  editController.isFilterTap.value == true
+                                      ? {
+                                          editController.isFilterTap.value =
+                                              false,
+                                        }
+                                      : null;
+
+                                  editController.isTextTap.value == true
+                                      ? {
+                                          editController.isTextTap.value =
+                                              false,
+                                          text = editController
+                                              .textController.value.text,
+                                          editController.isEditIconTap.value ==
+                                                  true
+                                              ? editController.items[
+                                                  selectedIndexPost
+                                                      .value!] = Item(
+                                                  parentKey:
+                                                      selectedItem!.parentKey,
+                                                  size: selectedItem!.size,
+                                                  offset: selectedItem!.offset,
+                                                  rotation:
+                                                      selectedItem!.rotation,
                                                   text: text,
                                                   textColor: editController
                                                       .textBlackColor.value,
@@ -840,76 +1265,113 @@ class _EditImageScreenState extends State<EditImageScreen> {
                                                       editController
                                                           .backgroundStrokeColor
                                                           .value,
+                                                )
+                                              : editController.items.add(
+                                                  Item(
+                                                    parentKey: GlobalKey(),
+                                                    size: const Size(100, 100),
+                                                    offset:
+                                                        const Offset(100, 100),
+                                                    rotation: 0,
+                                                    text: text,
+                                                    textColor: editController
+                                                        .textBlackColor.value,
+                                                    fontSize: editController
+                                                        .selectedFontSize.value,
+                                                    fontWeight: editController
+                                                        .fontWeight.value,
+                                                    textDecoration:
+                                                        editController
+                                                            .textDecoration
+                                                            .value,
+                                                    fontStyle: editController
+                                                        .fontStyle.value,
+                                                    selectTitle: editController
+                                                        .selectedTitle.value,
+                                                    fontFamily: editController
+                                                        .selectedFontFamily
+                                                        .value,
+                                                    isStrokeCheck:
+                                                        editController
+                                                            .checkBoxValue
+                                                            .value,
+                                                    strokeWidth: editController
+                                                        .selectedStrokeWidth
+                                                        .value,
+                                                    forgroundColor:
+                                                        editController
+                                                            .forgroundStrokeColor
+                                                            .value,
+                                                    backgroundColor:
+                                                        editController
+                                                            .backgroundStrokeColor
+                                                            .value,
+                                                  ),
                                                 ),
-                                              ),
-                                        editController
-                                            .textController.value.text = "",
-                                        editController.isEditIconTap.value =
-                                            false,
-                                      }
-                                    : null;
+                                          editController
+                                              .textController.value.text = "",
+                                          editController.isEditIconTap.value =
+                                              false,
+                                        }
+                                      : null;
 
-                                editController.isCropTap.value == true
-                                    ? {
-                                        editController.isCropTap.value = false,
-                                      }
-                                    : null;
+                                  editController.isCropTap.value == true
+                                      ? {
+                                          editController.isCropTap.value =
+                                              false,
+                                        }
+                                      : null;
 
-                                editController.isContrastTap.value == true
-                                    ? {
-                                        editController.isContrastTap.value =
-                                            false,
-                                      }
-                                    : null;
+                                  editController.isContrastTap.value == true
+                                      ? {
+                                          editController.isContrastTap.value =
+                                              false,
+                                        }
+                                      : null;
 
-                                editController.isRotateTap.value == true
-                                    ? {
-                                        editController.isRotateTap.value =
-                                            false,
-                                      }
-                                    : null;
+                                  editController.isRotateTap.value == true
+                                      ? {
+                                          editController.isRotateTap.value =
+                                              false,
+                                        }
+                                      : null;
 
-                                editController.isSizeBoxTap.value == true
-                                    ? {
-                                        editController.isSizeBoxTap.value =
-                                            false,
-                                      }
-                                    : editController.isLogoImageTap.value ==
-                                            true
-                                        ? {
-                                            editController
-                                                .isLogoImageTap.value = false,
-                                            editController.isImageShow.value =
-                                                false,
-                                          }
-                                        : null;
-                              },
-                              icon: const Icon(
-                                Icons.done,
-                                color: whiteColor,
-                              ),
-                            )
-                          : editController.isCropTap.value == true
-                              ? Container()
-                              : Image.asset(
-                                  "assets/images/printIcon.png",
-                                  scale: 5,
-                                ),
-                    )
-                  : GestureDetector(
-                      onTap: () {
-                        editController.isShareImage.value = true;
-                        shareImage(bytes!,
-                            "${DateTime.now().millisecondsSinceEpoch}.png");
-                        setState(() {});
-                      },
-                      child: const Icon(
-                        Icons.share,
-                        color: whiteColor,
-                      ),
-                    ),
-            ),
-          ),
+                                  editController.isSizeBoxTap.value == true
+                                      ? {
+                                          editController.isSizeBoxTap.value =
+                                              false,
+                                        }
+                                      : editController.isLogoImageTap.value ==
+                                              true
+                                          ? {
+                                              editController
+                                                  .isLogoImageTap.value = false,
+                                              editController.isImageShow.value =
+                                                  false,
+                                            }
+                                          : editController.isPickAudioIconTap
+                                                      .value ==
+                                                  true
+                                              ? {
+                                                  editController
+                                                      .isPickAudioIconTap
+                                                      .value = false,
+                                                }
+                                              : null;
+                                },
+                          icon: const Icon(
+                            Icons.done,
+                            color: whiteColor,
+                          ),
+                        )
+                      : editController.isCropTap.value == true
+                          ? Container()
+                          : Image.asset(
+                              "assets/images/printIcon.png",
+                              scale: 5,
+                            ),
+                ),
+              )),
         ],
       ),
       body: Obx(
@@ -962,6 +1424,10 @@ class _EditImageScreenState extends State<EditImageScreen> {
                   editController.pickLogosCardFrontSide.clear();
                   editController.pickLogosCardBackSide.clear();
                   editController.checkBoxValue.value = false;
+                  editController.isPickAudioIconTap.value = false;
+                  editController.selectedAudioPath.value = "";
+                  await player.stop();
+                  await waveformController!.stopPlayer();
                   Get.offAll(
                     transition: Transition.rightToLeftWithFade,
                     () => const BottomNavBarBar(),
@@ -976,493 +1442,284 @@ class _EditImageScreenState extends State<EditImageScreen> {
                   // setState(() {});
                   return false;
                 },
-          child: GestureDetector(
-            onTap: () {
-              editController.isTextTap.value = false;
-              editController.show.value = false;
-              editController.isImageShow.value = false;
-              editController.isLogoImageTap.value = false;
-            },
-            child: Obx(
-              () => Stack(
-                children: [
-                  Column(
+          child: Stack(
+            children: [
+              GestureDetector(
+                onTap: () {
+                  editController.isTextTap.value = false;
+                  editController.show.value = false;
+                  editController.isImageShow.value = false;
+                  editController.isLogoImageTap.value = false;
+                },
+                child: Obx(
+                  () => Stack(
                     children: [
-                      Expanded(
-                        child: Stack(
-                          children: [
-                            editController.isShareImage.value == true
-                                ? SizedBox(
-                                    height: double.infinity,
-                                    width: double.infinity,
-                                    child: Image.memory(
-                                      bytes!,
-                                      fit: BoxFit.fill,
-                                    ),
-                                  )
-                                : Container(
-                                    color:
-                                        editController.isCropTap.value == true
-                                            ? blackColor
-                                            : whiteColor,
-                                    padding: EdgeInsets.symmetric(
-                                      vertical: editController
-                                                  .imageHeight.value ==
-                                              double.infinity
-                                          // ? 0.025 * h
-                                          ? 0.005 * h
-                                          : editController.imageHeight.value ==
-                                                  0.65 * h
-                                              // ? 0.085 * h
-                                              ? 0.095 * h
-                                              : editController
-                                                          .imageHeight.value ==
-                                                      0.6 * h
-                                                  // ? 0.11 * h
-                                                  ? 0.121 * h
-                                                  : editController.imageHeight
-                                                              .value ==
-                                                          0.65 * h
-                                                      // ? 0.056 * h
-                                                      ? 0.054 * h
-                                                      : editController
-                                                                  .imageHeight
-                                                                  .value ==
-                                                              0.62 * h
-                                                          // ? 0.1 * h
-                                                          ? 0.08 * h
-                                                          // : 0.165 * h,
-                                                          : 0.125 * h,
-                                      horizontal: editController
-                                                  .imageHeight.value ==
-                                              double.infinity
-                                          // ? 0.04 * w
-                                          ? 0.015 * w
-                                          : editController.imageHeight.value ==
-                                                  0.65 * h
-                                              ? 0.055 * w
-                                              : editController
-                                                          .imageHeight.value ==
-                                                      0.6 * h
-                                                  ? 0.06 * w
-                                                  : editController.imageHeight
-                                                              .value ==
-                                                          0.65 * h
-                                                      ? 0.06 * w
-                                                      : editController
-                                                                  .imageHeight
-                                                                  .value ==
-                                                              0.62 * h
-                                                          ? 0.1 * w
-                                                          : 0.13 * w,
-                                    ),
-                                    child: RepaintBoundary(
-                                      key: globalKey,
-                                      child: Transform.rotate(
-                                        angle: editController.angle.value,
-                                        child: ColorFiltered(
-                                          colorFilter: editController
-                                                      .filterContainerColor
-                                                      .value ==
-                                                  Colors.black.withOpacity(0.05)
-                                              ? const ColorFilter.matrix([
-                                                  0.2126, 0.7152, 0.0722, 0,
-                                                  0, // Red
-                                                  0.2126, 0.7152, 0.0722, 0,
-                                                  0, // Green
-                                                  0.2126, 0.7152, 0.0722, 0,
-                                                  0, // Blue
-                                                  0, 0, 0, 1, 0, // Alpha
-                                                ])
-                                              : const ColorFilter.mode(
-                                                  Colors.transparent,
-                                                  BlendMode.color,
+                      Column(
+                        children: [
+                          Expanded(
+                            child: Stack(
+                              children: [
+                                Container(
+                                  color: editController.isCropTap.value == true
+                                      ? blackColor
+                                      : whiteColor,
+                                  padding: EdgeInsets.symmetric(
+                                    vertical: editController
+                                                .imageHeight.value ==
+                                            double.infinity
+                                        // ? 0.025 * h
+                                        ? 0.005 * h
+                                        : editController.imageHeight.value ==
+                                                0.65 * h
+                                            // ? 0.085 * h
+                                            ? 0.095 * h
+                                            : editController
+                                                        .imageHeight.value ==
+                                                    0.6 * h
+                                                // ? 0.11 * h
+                                                ? 0.121 * h
+                                                : editController.imageHeight
+                                                            .value ==
+                                                        0.65 * h
+                                                    // ? 0.056 * h
+                                                    ? 0.054 * h
+                                                    : editController.imageHeight
+                                                                .value ==
+                                                            0.62 * h
+                                                        // ? 0.1 * h
+                                                        ? 0.08 * h
+                                                        // : 0.165 * h,
+                                                        : 0.125 * h,
+                                    horizontal: editController
+                                                .imageHeight.value ==
+                                            double.infinity
+                                        // ? 0.04 * w
+                                        ? 0.015 * w
+                                        : editController.imageHeight.value ==
+                                                0.65 * h
+                                            ? 0.055 * w
+                                            : editController
+                                                        .imageHeight.value ==
+                                                    0.65 * h
+                                                ? 0.06 * w
+                                                : editController.imageHeight
+                                                            .value ==
+                                                        0.62 * h
+                                                    ? 0.1 * w
+                                                    : 0.13 * w,
+                                  ),
+                                  child: RepaintBoundary(
+                                    key: globalKey,
+                                    child: Transform.rotate(
+                                      angle: editController.angle.value,
+                                      child: Stack(
+                                        children: [
+                                          Center(
+                                            child: ColorFiltered(
+                                              colorFilter: ColorFilter.matrix(
+                                                _contrastMatrix(editController
+                                                    .contrast.value),
+                                              ),
+                                              child: PhotoView(
+                                                backgroundDecoration:
+                                                    const BoxDecoration(
+                                                  color: blackColor,
                                                 ),
-                                          child: Stack(
-                                            children: [
-                                              Center(
-                                                child: ColorFiltered(
+                                                // minScale: 0.2,
+                                                maxScale: 2.0,
+                                                imageProvider:
+                                                    FileImage(widget.cropImage),
+                                                disableGestures: false,
+                                                enableRotation: true,
+                                                enablePanAlways: true,
+                                                wantKeepAlive: true,
+                                                gaplessPlayback: true,
+                                              ),
+                                            ),
+                                          ),
+                                          editController.isCropTap.value == true
+                                              ? cropImage()
+                                              : ColorFiltered(
                                                   colorFilter:
                                                       ColorFilter.matrix(
                                                     _contrastMatrix(
                                                         editController
                                                             .contrast.value),
                                                   ),
-                                                  child: PhotoView(
-                                                    backgroundDecoration:
-                                                        const BoxDecoration(
-                                                      color: blackColor,
+                                                  child: IgnorePointer(
+                                                    child: SizedBox(
+                                                      child: editController
+                                                                      .isCropImageDone
+                                                                      .value ==
+                                                                  true &&
+                                                              image != null
+                                                          ? Center(
+                                                              child: Image(
+                                                                image: image!
+                                                                    .image,
+                                                                height: editController
+                                                                    .imageHeight
+                                                                    .value,
+                                                                width: w,
+                                                                fit:
+                                                                    BoxFit.fill,
+                                                              ),
+                                                            )
+                                                          : Center(
+                                                              child:
+                                                                  Image.asset(
+                                                                widget
+                                                                    .wallPaper,
+                                                                height: editController
+                                                                    .imageHeight
+                                                                    .value,
+                                                                width: w,
+                                                                fit:
+                                                                    BoxFit.fill,
+                                                              ),
+                                                            ),
                                                     ),
-                                                    // minScale: 0.2,
-                                                    maxScale: 2.0,
-                                                    imageProvider: FileImage(
-                                                        widget.cropImage),
-                                                    disableGestures: false,
-                                                    enableRotation: true,
-                                                    enablePanAlways: true,
-                                                    wantKeepAlive: true,
-                                                    gaplessPlayback: true,
-                                                  ),
-
-                                                  // child: Container(
-                                                  //   height: editController
-                                                  //       .imageHeight.value,
-                                                  //   width: w,
-                                                  //   color: blackColor,
-                                                  //   child: GestureDetector(
-                                                  //     onScaleStart: (details) {
-                                                  //       _lastRotation =
-                                                  //           _rotationAngle;
-                                                  //     },
-                                                  //     onScaleUpdate: (details) {
-                                                  //       // Calculate the updated rotation based on the initial rotation
-                                                  //       setState(() {
-                                                  //         _rotationAngle =
-                                                  //             _lastRotation +
-                                                  //                 details
-                                                  //                     .rotation;
-                                                  //       });
-                                                  //     },
-                                                  //     child: InteractiveViewer(
-                                                  //       transformationController:
-                                                  //           transformationController,
-                                                  //       trackpadScrollCausesScale:
-                                                  //           true,
-                                                  //       // onInteractionUpdate:
-                                                  //       //     (details) {
-                                                  //       //   _onRotationUpdate(
-                                                  //       //       details.rotation);
-                                                  //       //   setState(() {});
-                                                  //       // },
-                                                  //       minScale: 0.1,
-                                                  //       maxScale: 4.0,
-                                                  //       boundaryMargin:
-                                                  //           const EdgeInsets
-                                                  //               .all(double
-                                                  //                   .infinity),
-                                                  //       child: Transform.rotate(
-                                                  //         angle: _rotation,
-                                                  //         child: AspectRatio(
-                                                  //           aspectRatio: 1.0,
-                                                  //           child: widget
-                                                  //                       .cropImage !=
-                                                  //                   null
-                                                  //               ? Image.file(
-                                                  //                   File(widget
-                                                  //                       .cropImage
-                                                  //                       .path),
-                                                  //                   fit: BoxFit
-                                                  //                       .contain,
-                                                  //                 )
-                                                  //               : Container(),
-                                                  //         ),
-                                                  //       ),
-                                                  //     ),
-                                                  //   ),
-                                                  // ),
-                                                ),
-                                              ),
-                                              editController.isCropTap.value ==
-                                                      true
-                                                  ? cropImage()
-                                                  : ColorFiltered(
-                                                      colorFilter:
-                                                          ColorFilter.matrix(
-                                                        _contrastMatrix(
-                                                            editController
-                                                                .contrast
-                                                                .value),
-                                                      ),
-                                                      child: IgnorePointer(
-                                                        child: SizedBox(
-                                                          child: editController
-                                                                          .isCropImageDone
-                                                                          .value ==
-                                                                      true &&
-                                                                  image != null
-                                                              ? Center(
-                                                                  child: Image(
-                                                                    image: image!
-                                                                        .image,
-                                                                    height: editController
-                                                                        .imageHeight
-                                                                        .value,
-                                                                    width: w,
-                                                                    fit: BoxFit
-                                                                        .fill,
-                                                                  ),
-                                                                )
-                                                              : Center(
-                                                                  child: Image
-                                                                      .asset(
-                                                                    widget
-                                                                        .wallPaper,
-                                                                    height: editController
-                                                                        .imageHeight
-                                                                        .value,
-                                                                    width: w,
-                                                                    fit: BoxFit
-                                                                        .fill,
-                                                                  ),
-                                                                ),
-                                                        ),
-                                                      ),
-                                                    ),
-                                              Obx(
-                                                () => Stack(
-                                                  children: List.generate(
-                                                    editController
-                                                        .pickLogos.length,
-                                                    (index) {
-                                                      return ImageWidget(
-                                                        image: editController
-                                                                .pickLogos[
-                                                            index]["image"],
-                                                        onRemove: () {
-                                                          editController
-                                                              .pickLogos
-                                                              .removeAt(index);
-                                                          editController
-                                                              .isImageShow
-                                                              .value = false;
-                                                          editController
-                                                              .isLogoImageTap
-                                                              .value = false;
-                                                        },
-                                                        index: index,
-                                                      );
-                                                    },
                                                   ),
                                                 ),
-                                              ),
-                                              Stack(
-                                                children: editController.items
-                                                    .asMap()
-                                                    .entries
-                                                    .map((entry) {
-                                                  final item = entry.value;
-                                                  final index = entry.key;
-                                                  return TextWidget(
-                                                    key: item.parentKey,
-                                                    item: item,
+                                          Obx(
+                                            () => Stack(
+                                              children: List.generate(
+                                                editController.pickLogos.length,
+                                                (index) {
+                                                  return ImageWidget(
+                                                    image: editController
+                                                            .pickLogos[index]
+                                                        ["image"],
                                                     onRemove: () {
+                                                      editController.pickLogos
+                                                          .removeAt(index);
+                                                      editController.isImageShow
+                                                          .value = false;
                                                       editController
-                                                          .removeItem(index);
-                                                      editController
-                                                          .show.value = false;
-                                                    },
-                                                    onEdit: () {
-                                                      selectedItem = item;
-                                                      selectedIndexPost.value =
-                                                          index;
-                                                      editController
-                                                          .textController
-                                                          .value
-                                                          .text = item.text;
-                                                      editController
-                                                          .isEditIconTap
-                                                          .value = true;
-                                                      editController
-                                                              .textBlackColor
-                                                              .value =
-                                                          item.textColor;
-                                                      editController
-                                                              .selectedFontSize
-                                                              .value =
-                                                          item.fontSize;
-                                                      editController.fontWeight
-                                                              .value =
-                                                          item.fontWeight;
-                                                      editController.fontWeight
-                                                                  .value ==
-                                                              ui.FontWeight.bold
-                                                          ? editController
-                                                              .isBoldIconTap
-                                                              .value = true
-                                                          : editController
-                                                              .isBoldIconTap
-                                                              .value = false;
-                                                      editController
-                                                              .textDecoration
-                                                              .value =
-                                                          item.textDecoration;
-                                                      editController
-                                                                  .textDecoration
-                                                                  .value ==
-                                                              TextDecoration
-                                                                  .underline
-                                                          ? editController
-                                                              .isTextUnderLineIconTap
-                                                              .value = true
-                                                          : editController
-                                                              .isTextUnderLineIconTap
-                                                              .value = false;
-                                                      editController
-                                                              .fontStyle.value =
-                                                          item.fontStyle;
-                                                      editController.fontStyle
-                                                                  .value ==
-                                                              ui.FontStyle
-                                                                  .italic
-                                                          ? editController
-                                                              .isTextItalicIconTap
-                                                              .value = true
-                                                          : editController
-                                                              .isTextItalicIconTap
-                                                              .value = false;
-                                                      editController
-                                                              .selectedTitle
-                                                              .value =
-                                                          item.selectTitle;
-                                                      editController
-                                                              .selectedFontFamily
-                                                              .value =
-                                                          item.fontFamily;
-                                                      editController
-                                                              .selectedStrokeWidth
-                                                              .value =
-                                                          item.strokeWidth;
-                                                      editController
-                                                              .forgroundStrokeColor
-                                                              .value =
-                                                          item.forgroundColor;
-                                                      editController
-                                                              .backgroundStrokeColor
-                                                              .value =
-                                                          item.backgroundColor;
-                                                      editController
-                                                              .checkBoxValue
-                                                              .value =
-                                                          item.isStrokeCheck;
+                                                          .isLogoImageTap
+                                                          .value = false;
                                                     },
                                                     index: index,
                                                   );
-                                                }).toList(),
+                                                },
                                               ),
-                                              IgnorePointer(
-                                                child: ColorFiltered(
-                                                  colorFilter:
-                                                      ColorFilter.matrix(
-                                                    _contrastMatrix(
-                                                        editController
-                                                            .contrast.value),
-                                                  ),
-                                                ),
-                                              ),
-                                              IgnorePointer(
-                                                child: Container(
-                                                  color: editController
-                                                      .filterContainerColor
-                                                      .value,
-                                                ),
-                                              ),
-                                            ].toList(),
+                                            ),
                                           ),
-                                        ),
+                                          Stack(
+                                            children: editController.items
+                                                .asMap()
+                                                .entries
+                                                .map((entry) {
+                                              final item = entry.value;
+                                              final index = entry.key;
+                                              return TextWidget(
+                                                key: item.parentKey,
+                                                item: item,
+                                                onRemove: () {
+                                                  editController
+                                                      .removeItem(index);
+                                                  editController.show.value =
+                                                      false;
+                                                },
+                                                onEdit: () {
+                                                  selectedItem = item;
+                                                  selectedIndexPost.value =
+                                                      index;
+                                                  editController.textController
+                                                      .value.text = item.text;
+                                                  editController.isEditIconTap
+                                                      .value = true;
+                                                  editController.textBlackColor
+                                                      .value = item.textColor;
+                                                  editController
+                                                      .selectedFontSize
+                                                      .value = item.fontSize;
+                                                  editController.fontWeight
+                                                      .value = item.fontWeight;
+                                                  editController.fontWeight
+                                                              .value ==
+                                                          ui.FontWeight.bold
+                                                      ? editController
+                                                          .isBoldIconTap
+                                                          .value = true
+                                                      : editController
+                                                          .isBoldIconTap
+                                                          .value = false;
+                                                  editController.textDecoration
+                                                          .value =
+                                                      item.textDecoration;
+                                                  editController.textDecoration
+                                                              .value ==
+                                                          TextDecoration
+                                                              .underline
+                                                      ? editController
+                                                          .isTextUnderLineIconTap
+                                                          .value = true
+                                                      : editController
+                                                          .isTextUnderLineIconTap
+                                                          .value = false;
+                                                  editController.fontStyle
+                                                      .value = item.fontStyle;
+                                                  editController.fontStyle
+                                                              .value ==
+                                                          ui.FontStyle.italic
+                                                      ? editController
+                                                          .isTextItalicIconTap
+                                                          .value = true
+                                                      : editController
+                                                          .isTextItalicIconTap
+                                                          .value = false;
+                                                  editController.selectedTitle
+                                                      .value = item.selectTitle;
+                                                  editController
+                                                      .selectedFontFamily
+                                                      .value = item.fontFamily;
+                                                  editController
+                                                      .selectedStrokeWidth
+                                                      .value = item.strokeWidth;
+                                                  editController
+                                                          .forgroundStrokeColor
+                                                          .value =
+                                                      item.forgroundColor;
+                                                  editController
+                                                          .backgroundStrokeColor
+                                                          .value =
+                                                      item.backgroundColor;
+                                                  editController
+                                                          .checkBoxValue.value =
+                                                      item.isStrokeCheck;
+                                                },
+                                                index: index,
+                                              );
+                                            }).toList(),
+                                          ),
+                                          IgnorePointer(
+                                            child: ColorFiltered(
+                                              colorFilter: ColorFilter.matrix(
+                                                _contrastMatrix(editController
+                                                    .contrast.value),
+                                              ),
+                                            ),
+                                          ),
+                                          IgnorePointer(
+                                            child: Container(
+                                              color: editController
+                                                  .filterContainerColor.value,
+                                            ),
+                                          ),
+                                        ].toList(),
                                       ),
+                                      // ),
                                     ),
                                   ),
-                            Container(
-                              height: editController.isShareImage.value == true
-                                  ? 0
-                                  : editController.imageHeight.value ==
-                                          double.infinity
-                                      ? 0.065 * w
+                                ),
+                                Container(
+                                  height: editController.isShareImage.value ==
+                                          true
+                                      ? 0
                                       : editController.imageHeight.value ==
-                                              0.65 * h
-                                          ? 0.21 * w
-                                          : editController.imageHeight.value ==
-                                                  0.6 * h
-                                              ? 0.267 * w
-                                              : editController
-                                                          .imageHeight.value ==
-                                                      0.65 * h
-                                                  ? 0.164 * w
-                                                  : editController.imageHeight
-                                                              .value ==
-                                                          0.62 * h
-                                                      ? 0.25 * w
-                                                      : 0.37 * w,
-                              width: w,
-                              color: editController.isCropTap.value == true
-                                  ? blackColor
-                                  : whiteColor,
-                            ),
-                            editController.isShareImage.value == true
-                                ? Container()
-                                : Positioned(
-                                    left: 0,
-                                    child: Container(
-                                      height: h,
-                                      width: editController.imageHeight.value ==
                                               double.infinity
-                                          ? 0.04 * w
-                                          : editController.imageHeight.value ==
-                                                  0.65 * h
-                                              ? 0.056 * w
-                                              : editController
-                                                          .imageHeight.value ==
-                                                      0.6 * h
-                                                  ? 0.06 * w
-                                                  : editController.imageHeight
-                                                              .value ==
-                                                          0.65 * h
-                                                      ? 0.056 * w
-                                                      : editController
-                                                                  .imageHeight
-                                                                  .value ==
-                                                              0.62 * h
-                                                          ? 0.1 * w
-                                                          : 0.135 * w,
-                                      color:
-                                          editController.isCropTap.value == true
-                                              ? blackColor
-                                              : whiteColor,
-                                    ),
-                                  ),
-                            editController.isShareImage.value == true
-                                ? Container()
-                                : Positioned(
-                                    right: 0,
-                                    child: Container(
-                                      height: h,
-                                      width: editController.imageHeight.value ==
-                                              double.infinity
-                                          // ? 0.04 * w
-                                          ? 0.015 * w
-                                          : editController.imageHeight.value ==
-                                                  0.65 * h
-                                              ? 0.056 * w
-                                              : editController
-                                                          .imageHeight.value ==
-                                                      0.6 * h
-                                                  ? 0.06 * w
-                                                  : editController.imageHeight
-                                                              .value ==
-                                                          0.65 * h
-                                                      ? 0.056 * w
-                                                      : editController
-                                                                  .imageHeight
-                                                                  .value ==
-                                                              0.62 * h
-                                                          ? 0.1 * w
-                                                          : 0.135 * w,
-                                      color:
-                                          editController.isCropTap.value == true
-                                              ? blackColor
-                                              : whiteColor,
-                                    ),
-                                  ),
-                            // ),
-                            editController.isShareImage.value == true
-                                ? Container()
-                                : Positioned(
-                                    bottom: 0,
-                                    child: Container(
-                                      height: editController
-                                                  .imageHeight.value ==
-                                              double.infinity
-                                          ? 0.056 * w
+                                          ? 0.065 * w
                                           : editController.imageHeight.value ==
                                                   0.65 * h
                                               ? 0.21 * w
@@ -1480,218 +1737,339 @@ class _EditImageScreenState extends State<EditImageScreen> {
                                                               0.62 * h
                                                           ? 0.25 * w
                                                           : 0.37 * w,
-                                      width: w,
-                                      color:
-                                          editController.isCropTap.value == true
-                                              ? blackColor
-                                              : whiteColor,
-                                    ),
-                                  ),
-                            editController.isImageSaveLoader.value == true
-                                ? const Center(
-                                    child: CircularProgressIndicator(
-                                      color: kPrimeryColor,
-                                    ),
-                                  )
-                                : Container(),
-                          ],
-                        ),
-                      ),
-                      editController.isTextTap.value == true ||
-                              editController.isCropTap.value == true ||
-                              editController.isFilterTap.value == true ||
-                              editController.isContrastTap.value == true ||
-                              editController.isRotateTap.value == true ||
-                              editController.isSizeBoxTap.value == true ||
-                              editController.isLogoImageTap.value == true ||
-                              editController.isImageShow.value == true
-                          ? Container()
-                          : SizedBox(
-                              width: w,
-                              child: Column(
-                                mainAxisAlignment: MainAxisAlignment.end,
-                                children: [
-                                  editController.isShareImage.value == true
-                                      ? Container()
-                                      : Container(
-                                          height: 75,
-                                          color: kPrimeryColor,
-                                          child: Obx(
-                                            () => ListView.builder(
-                                              scrollDirection: Axis.horizontal,
-                                              itemCount: editController
-                                                  .functionList.length,
-                                              itemBuilder: (context, index) {
-                                                return GestureDetector(
-                                                  onTap: () {
-                                                    editController.isShareImage
-                                                        .value = false;
-                                                    editController
-                                                        .updateTap(index);
-                                                    editController.functionTap
-                                                        .value = index;
-                                                  },
-                                                  child: Center(
-                                                    child: Container(
-                                                      margin: const EdgeInsets
-                                                          .symmetric(
-                                                          horizontal: 5),
-                                                      decoration: BoxDecoration(
-                                                        color: editController
-                                                                    .functionTap
-                                                                    .value ==
-                                                                index
-                                                            ? whiteColor
-                                                            : transparentColor,
-                                                      ),
-                                                      width: 70,
-                                                      child: Container(
-                                                        margin: const EdgeInsets
-                                                            .only(top: 5),
-                                                        child: Column(
-                                                          mainAxisAlignment:
-                                                              MainAxisAlignment
-                                                                  .center,
-                                                          children: [
-                                                            Image.asset(
-                                                              editController
-                                                                      .functionList[
-                                                                  index]["image"]!,
-                                                              scale: index ==
-                                                                          4 ||
-                                                                      index ==
-                                                                          5 ||
-                                                                      index == 6
-                                                                  ? 7.5
-                                                                  : index == 0 ||
-                                                                          index ==
-                                                                              1
-                                                                      ? 7.5
-                                                                      : 6.5,
-                                                              color: editController
-                                                                          .functionTap
-                                                                          .value ==
-                                                                      index
-                                                                  ? kEditFetureColor
-                                                                  : whiteColor,
-                                                            ),
-                                                            const SizedBox(
-                                                              height: 10,
-                                                            ),
-                                                            Text(
-                                                              editController
-                                                                      .functionList[
-                                                                  index]["size"]!,
-                                                              style: GoogleFonts
-                                                                  .poppins(
-                                                                color: editController
-                                                                            .functionTap
-                                                                            .value ==
-                                                                        index
-                                                                    ? kEditFetureColor
-                                                                    : whiteColor,
-                                                                fontWeight:
-                                                                    FontWeight
-                                                                        .w500,
-                                                                fontSize: index == 3 ||
-                                                                        index ==
-                                                                            4 ||
-                                                                        index ==
-                                                                            5 ||
-                                                                        index ==
-                                                                            6
-                                                                    ? 14
-                                                                    : 15,
-                                                              ),
-                                                            ),
-                                                          ],
-                                                        ),
-                                                      ),
-                                                    ),
-                                                  ),
-                                                );
-                                              },
-                                            ),
-                                          ),
-                                        ),
-                                ],
-                              ),
-                            ),
-                      Obx(
-                        () => Align(
-                          alignment: Alignment.bottomCenter,
-                          child: Container(
-                            child: editController.isCropTap.value == true
-                                ? cropButton()
-                                : editController.isFilterTap.value == true
-                                    ? filterContainer()
-                                    : editController.isContrastTap.value == true
-                                        ? imageContrast()
-                                        : editController.isRotateTap.value ==
-                                                true
-                                            ? imageRotate()
-                                            : editController
-                                                        .isSizeBoxTap.value ==
-                                                    true
-                                                ? imageSizeBoxFit()
-                                                : editController.isLogoImageTap
-                                                            .value ==
-                                                        true
-                                                    ? logoImageAdd()
-                                                    : null,
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
-                  editController.isTextTap.value == true
-                      ? GestureDetector(
-                          onTap: () {
-                            editController.isTextTap.value = true;
-                          },
-                          child: Container(
-                            height: h,
-                            width: w,
-                            color: blackColor.withOpacity(0.5),
-                          ),
-                        )
-                      : Container(),
-                  editController.isTextTap.value == true
-                      ? Column(
-                          children: [
-                            Container(
-                              margin: const EdgeInsets.only(top: 50),
-                              child: Column(
-                                children: [
-                                  Stack(
-                                    children: [
-                                      Container(
-                                        decoration: BoxDecoration(
-                                          color: Colors.transparent,
-                                          borderRadius:
-                                              BorderRadius.circular(10),
+                                  width: w,
+                                  color: editController.isCropTap.value == true
+                                      ? blackColor
+                                      : whiteColor,
+                                ),
+                                editController.isShareImage.value == true
+                                    ? Container()
+                                    : Positioned(
+                                        left: 0,
+                                        child: Container(
+                                          height: h,
+                                          width: editController
+                                                      .imageHeight.value ==
+                                                  double.infinity
+                                              ? 0.04 * w
+                                              : editController
+                                                          .imageHeight.value ==
+                                                      0.65 * h
+                                                  ? 0.056 * w
+                                                  : editController.imageHeight
+                                                              .value ==
+                                                          0.6 * h
+                                                      ? 0.06 * w
+                                                      : editController
+                                                                  .imageHeight
+                                                                  .value ==
+                                                              0.65 * h
+                                                          ? 0.056 * w
+                                                          : editController
+                                                                      .imageHeight
+                                                                      .value ==
+                                                                  0.62 * h
+                                                              ? 0.1 * w
+                                                              : 0.135 * w,
+                                          color:
+                                              editController.isCropTap.value ==
+                                                      true
+                                                  ? blackColor
+                                                  : whiteColor,
                                         ),
                                       ),
-                                      GestureDetector(
-                                        onTap: () {
-                                          editController.isTextTap.value = true;
-                                        },
+                                editController.isShareImage.value == true
+                                    ? Container()
+                                    : Positioned(
+                                        right: 0,
                                         child: Container(
-                                          margin: const EdgeInsets.only(
-                                            left: 15,
-                                            right: 15,
-                                            top: 20,
-                                            bottom: 5,
+                                          height: h,
+                                          width: editController
+                                                      .imageHeight.value ==
+                                                  double.infinity
+                                              ? 0.04 * w
+                                              // ? 0.02 * w
+                                              : editController
+                                                          .imageHeight.value ==
+                                                      0.65 * h
+                                                  ? 0.056 * w
+                                                  : editController.imageHeight
+                                                              .value ==
+                                                          0.6 * h
+                                                      ? 0.06 * w
+                                                      : editController
+                                                                  .imageHeight
+                                                                  .value ==
+                                                              0.65 * h
+                                                          ? 0.056 * w
+                                                          : editController
+                                                                      .imageHeight
+                                                                      .value ==
+                                                                  0.62 * h
+                                                              ? 0.1 * w
+                                                              : 0.135 * w,
+                                          color:
+                                              editController.isCropTap.value ==
+                                                      true
+                                                  ? blackColor
+                                                  : whiteColor,
+                                        ),
+                                      ),
+                                // ),
+                                editController.isShareImage.value == true
+                                    ? Container()
+                                    : Positioned(
+                                        bottom: 0,
+                                        child: Container(
+                                          height: editController
+                                                      .imageHeight.value ==
+                                                  double.infinity
+                                              ? 0.056 * w
+                                              : editController
+                                                          .imageHeight.value ==
+                                                      0.65 * h
+                                                  ? 0.21 * w
+                                                  : editController.imageHeight
+                                                              .value ==
+                                                          0.6 * h
+                                                      ? 0.267 * w
+                                                      : editController
+                                                                  .imageHeight
+                                                                  .value ==
+                                                              0.65 * h
+                                                          ? 0.164 * w
+                                                          : editController
+                                                                      .imageHeight
+                                                                      .value ==
+                                                                  0.62 * h
+                                                              ? 0.25 * w
+                                                              : 0.37 * w,
+                                          width: w,
+                                          color:
+                                              editController.isCropTap.value ==
+                                                      true
+                                                  ? blackColor
+                                                  : whiteColor,
+                                        ),
+                                      ),
+                              ],
+                            ),
+                          ),
+                          editController.isTextTap.value == true ||
+                                  editController.isCropTap.value == true ||
+                                  editController.isFilterTap.value == true ||
+                                  editController.isContrastTap.value == true ||
+                                  editController.isRotateTap.value == true ||
+                                  editController.isSizeBoxTap.value == true ||
+                                  editController.isLogoImageTap.value == true ||
+                                  editController.isImageShow.value == true ||
+                                  editController.isPickAudioIconTap.value ==
+                                      true
+                              ? Container()
+                              : SizedBox(
+                                  width: w,
+                                  child: Column(
+                                    mainAxisAlignment: MainAxisAlignment.end,
+                                    children: [
+                                      editController.isShareImage.value == true
+                                          ? Container()
+                                          : Container(
+                                              height: 75,
+                                              color: kPrimeryColor,
+                                              child: Obx(
+                                                () => ListView.builder(
+                                                  scrollDirection:
+                                                      Axis.horizontal,
+                                                  itemCount: editController
+                                                      .functionList.length,
+                                                  itemBuilder:
+                                                      (context, index) {
+                                                    return GestureDetector(
+                                                      onTap: () {
+                                                        editController
+                                                            .isShareImage
+                                                            .value = false;
+                                                        editController
+                                                            .updateTap(index);
+                                                        editController
+                                                            .functionTap
+                                                            .value = index;
+                                                      },
+                                                      child: Center(
+                                                        child: Container(
+                                                          margin:
+                                                              const EdgeInsets
+                                                                  .symmetric(
+                                                                  horizontal:
+                                                                      5),
+                                                          decoration:
+                                                              BoxDecoration(
+                                                            color: editController
+                                                                        .functionTap
+                                                                        .value ==
+                                                                    index
+                                                                ? whiteColor
+                                                                : transparentColor,
+                                                          ),
+                                                          width: 70,
+                                                          child: Container(
+                                                            margin:
+                                                                const EdgeInsets
+                                                                    .only(
+                                                                    top: 5),
+                                                            child: Column(
+                                                              mainAxisAlignment:
+                                                                  MainAxisAlignment
+                                                                      .center,
+                                                              children: [
+                                                                Image.asset(
+                                                                  editController
+                                                                              .functionList[
+                                                                          index]
+                                                                      [
+                                                                      "image"]!,
+                                                                  scale: index == 4 ||
+                                                                          index ==
+                                                                              5 ||
+                                                                          index ==
+                                                                              6
+                                                                      ? 7.5
+                                                                      : index == 0 ||
+                                                                              index == 1
+                                                                          ? 7.5
+                                                                          : 6.5,
+                                                                  color: editController
+                                                                              .functionTap
+                                                                              .value ==
+                                                                          index
+                                                                      ? kEditFetureColor
+                                                                      : whiteColor,
+                                                                ),
+                                                                const SizedBox(
+                                                                  height: 10,
+                                                                ),
+                                                                Text(
+                                                                  editController
+                                                                              .functionList[
+                                                                          index]
+                                                                      ["size"]!,
+                                                                  style: GoogleFonts
+                                                                      .poppins(
+                                                                    color: editController.functionTap.value ==
+                                                                            index
+                                                                        ? kEditFetureColor
+                                                                        : whiteColor,
+                                                                    fontWeight:
+                                                                        FontWeight
+                                                                            .w500,
+                                                                    fontSize: index == 3 ||
+                                                                            index ==
+                                                                                4 ||
+                                                                            index ==
+                                                                                5 ||
+                                                                            index ==
+                                                                                6
+                                                                        ? 14
+                                                                        : 15,
+                                                                  ),
+                                                                ),
+                                                              ],
+                                                            ),
+                                                          ),
+                                                        ),
+                                                      ),
+                                                    );
+                                                  },
+                                                ),
+                                              ),
+                                            ),
+                                    ],
+                                  ),
+                                ),
+                          Obx(
+                            () => Align(
+                              alignment: Alignment.bottomCenter,
+                              child: Container(
+                                child: editController.isCropTap.value == true
+                                    ? cropButton()
+                                    : editController.isFilterTap.value == true
+                                        ? filterContainer()
+                                        : editController.isContrastTap.value ==
+                                                true
+                                            ? imageContrast()
+                                            : editController
+                                                        .isRotateTap.value ==
+                                                    true
+                                                ? imageRotate()
+                                                : editController.isSizeBoxTap
+                                                            .value ==
+                                                        true
+                                                    ? imageSizeBoxFit()
+                                                    : editController
+                                                                .isLogoImageTap
+                                                                .value ==
+                                                            true
+                                                        ? logoImageAdd()
+                                                        : editController
+                                                                    .isPickAudioIconTap
+                                                                    .value ==
+                                                                true
+                                                            ? audioWavePath()
+                                                            : null,
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                      editController.isTextTap.value == true
+                          ? GestureDetector(
+                              onTap: () {
+                                editController.isTextTap.value = true;
+                              },
+                              child: Container(
+                                height: h,
+                                width: w,
+                                color: blackColor.withOpacity(0.5),
+                              ),
+                            )
+                          : Container(),
+                      editController.isTextTap.value == true
+                          ? Column(
+                              children: [
+                                Container(
+                                  margin: const EdgeInsets.only(top: 50),
+                                  child: Column(
+                                    children: [
+                                      Stack(
+                                        children: [
+                                          Container(
+                                            decoration: BoxDecoration(
+                                              color: Colors.transparent,
+                                              borderRadius:
+                                                  BorderRadius.circular(10),
+                                            ),
                                           ),
-                                          height: 150,
-                                          width: double.infinity,
-                                          decoration: BoxDecoration(
-                                            color: whiteColor,
-                                            borderRadius:
-                                                BorderRadius.circular(10),
-                                          ),
-                                          child:
-                                              editController.isTextFieldTextAdd
+                                          GestureDetector(
+                                            onTap: () {
+                                              editController.isTextTap.value =
+                                                  true;
+                                            },
+                                            child: Container(
+                                              margin: const EdgeInsets.only(
+                                                left: 15,
+                                                right: 15,
+                                                top: 20,
+                                                bottom: 5,
+                                              ),
+                                              height: 150,
+                                              width: double.infinity,
+                                              decoration: BoxDecoration(
+                                                color: whiteColor,
+                                                borderRadius:
+                                                    BorderRadius.circular(10),
+                                              ),
+                                              child: editController
+                                                          .isTextFieldTextAdd
                                                           .value ==
                                                       true
                                                   ? Padding(
@@ -1902,71 +2280,77 @@ class _EditImageScreenState extends State<EditImageScreen> {
                                                         ),
                                                       ),
                                                     ),
-                                        ),
-                                      ),
-                                      Positioned(
-                                        right: 5,
-                                        top: 2,
-                                        child: GestureDetector(
-                                          onTap: () {
-                                            editController.isTextTap.value =
-                                                false;
-                                          },
-                                          child: Container(
-                                            height: 32,
-                                            width: 32,
-                                            decoration: const BoxDecoration(
-                                              color: kPrimeryColor,
-                                              shape: BoxShape.circle,
-                                            ),
-                                            child: const Icon(
-                                              Icons.close,
-                                              color: whiteColor,
                                             ),
                                           ),
-                                        ),
+                                          Positioned(
+                                            right: 5,
+                                            top: 2,
+                                            child: GestureDetector(
+                                              onTap: () {
+                                                editController.isTextTap.value =
+                                                    false;
+                                              },
+                                              child: Container(
+                                                height: 32,
+                                                width: 32,
+                                                decoration: const BoxDecoration(
+                                                  color: kPrimeryColor,
+                                                  shape: BoxShape.circle,
+                                                ),
+                                                child: const Icon(
+                                                  Icons.close,
+                                                  color: whiteColor,
+                                                ),
+                                              ),
+                                            ),
+                                          ),
+                                        ],
                                       ),
+                                      editController.isTextFieldTextAdd.value ==
+                                              true
+                                          ? GestureDetector(
+                                              onTap: () {
+                                                editController.isTextTap.value =
+                                                    true;
+                                              },
+                                              child: Container(
+                                                child: textFeture(
+                                                    context,
+                                                    setState,
+                                                    editController
+                                                        .textController.value),
+                                              ),
+                                            )
+                                          : Container(),
+                                      const SizedBox(
+                                        height: 10,
+                                      ),
+                                      editController.checkBoxValue.value
+                                          ? GestureDetector(
+                                              onTap: () {
+                                                editController.isTextTap.value =
+                                                    true;
+                                              },
+                                              child: Container(
+                                                child:
+                                                    strokeTextFeture(context),
+                                              ),
+                                            )
+                                          : Container(),
                                     ],
                                   ),
-                                  editController.isTextFieldTextAdd.value ==
-                                          true
-                                      ? GestureDetector(
-                                          onTap: () {
-                                            editController.isTextTap.value =
-                                                true;
-                                          },
-                                          child: Container(
-                                            child: textFeture(
-                                                context,
-                                                setState,
-                                                editController
-                                                    .textController.value),
-                                          ),
-                                        )
-                                      : Container(),
-                                  const SizedBox(
-                                    height: 10,
-                                  ),
-                                  editController.checkBoxValue.value
-                                      ? GestureDetector(
-                                          onTap: () {
-                                            editController.isTextTap.value =
-                                                true;
-                                          },
-                                          child: Container(
-                                            child: strokeTextFeture(context),
-                                          ),
-                                        )
-                                      : Container(),
-                                ],
-                              ),
-                            ),
-                          ],
-                        )
-                      : Container(),
-                ],
+                                ),
+                              ],
+                            )
+                          : Container(),
+                    ],
+                  ),
+                ),
               ),
-            ),
+              Obx(() => Visibility(
+                  visible: editController.isImageSaveLoader.value == true,
+                  child: saveLoader())),
+            ],
           ),
         ),
       ),
@@ -2014,4 +2398,16 @@ class PolygonClipper extends CustomClipper<Path> {
 
   @override
   bool shouldReclip(CustomClipper<Path> oldClipper) => false;
+}
+
+Widget popUpRow({required label, required icon}) {
+  return Row(
+    mainAxisSize: MainAxisSize.min,
+    children: [
+      SizedBox(width: 8),
+      Icon(icon, color: kPrimeryColor),
+      SizedBox(width: 8),
+      Text(label),
+    ],
+  );
 }

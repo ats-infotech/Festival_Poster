@@ -9,7 +9,9 @@ import 'dart:ui' as ui;
 
 import 'package:photo_frame/Controller/CardEditController.dart';
 import 'package:photo_frame/Contstant/AppColor.dart';
+import 'package:photo_frame/Contstant/CommonMethod.dart';
 import 'package:photo_frame/Screen/CardPreview.dart';
+import 'package:photo_frame/Screen/saveImageShow.dart';
 import 'package:photo_frame/Widgets/MyCardText.dart';
 import 'package:photo_frame/model/card_model.dart';
 
@@ -438,12 +440,10 @@ class _CardCreateState extends State<CardCreate> {
                   color: Colors.white,
                   height: Get.height,
                   width: Get.width,
-                  child: const Column(
+                  child: Column(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
-                      CircularProgressIndicator(
-                        color: kPrimeryColor,
-                      ),
+                      commonLoader(),
                     ],
                   ),
                 )

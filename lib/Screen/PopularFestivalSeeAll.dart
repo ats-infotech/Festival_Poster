@@ -172,10 +172,10 @@ class _PopularFestivalSeeAllState extends State<PopularFestivalSeeAll> {
                     ),
                     cursorColor: blackColor,
                     onChanged: (value) {
-                      setState(() {
+                      setState(() async {
                         searchData(value);
 
-                        FirebaseAnalyticsService.instance.logEvent(
+                      await  FirebaseAnalyticsService.instance.logEvent(
                             name: 'search', parameters: {'query': value});
                       });
                     },

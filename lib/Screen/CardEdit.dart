@@ -1,8 +1,10 @@
+import 'dart:developer';
 import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:image_gallery_saver_plus/image_gallery_saver_plus.dart';
 // import 'package:image_gallery_saver/image_gallery_saver.dart';
 import 'package:photo_frame/Controller/CardEditController.dart';
 import 'package:photo_frame/Contstant/AppColor.dart';
@@ -176,10 +178,10 @@ class _CardEditState extends State<CardEdit> {
                 : IconButton(
                     iconSize: 20,
                     onPressed: () async {
-                      // await ImageGallerySaver.saveFile(
-                      //     cardEditController.processBackCardPath.value!);
-                      // await ImageGallerySaver.saveFile(
-                      //     cardEditController.processFrontCardPath.value!);
+                      await ImageGallerySaverPlus.saveFile(
+                          cardEditController.processBackCardPath.value!);
+                      await ImageGallerySaverPlus.saveFile(
+                          cardEditController.processFrontCardPath.value!);
                       imageSaveSuccessDialog(
                         context,
                         () {

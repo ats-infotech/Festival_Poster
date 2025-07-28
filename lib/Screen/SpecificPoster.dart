@@ -31,23 +31,6 @@ class _SpecificPosterState extends State<SpecificPoster> {
           sourcePath: image!.path,
           compressFormat: ImageCompressFormat.jpg,
           compressQuality: 100,
-        //   aspectRatioPresets: [
-        //     CropAspectRatioPreset.square,
-        //     CropAspectRatioPreset.ratio4x3,
-        //     CropAspectRatioPreset.original,
-        //     CropAspectRatioPreset.ratio3x2,
-        //     CropAspectRatioPreset.ratio16x9,
-        //   ],
-        //   androidUiSettings: AndroidUiSettings(
-        //     toolbarTitle: 'Edit',
-        //     toolbarColor: grey800Color,
-        //     toolbarWidgetColor: whiteColor,
-        //     initAspectRatio: CropAspectRatioPreset.original,
-        //     lockAspectRatio: false,
-        //   ),
-        //   iosUiSettings: const IOSUiSettings(
-        //     title: 'Edit',
-        //   ),
         );
         if (croppedFile != null) {
           setState(() {
@@ -159,7 +142,7 @@ class _SpecificPosterState extends State<SpecificPoster> {
       body: WillPopScope(
         onWillPop: () async {
           return true;
-        },    
+        },
         child: Container(
           margin: const EdgeInsets.only(bottom: 0, top: 10),
           child: LiveGrid.options(
@@ -212,7 +195,8 @@ class _SpecificPosterState extends State<SpecificPoster> {
                           child: GestureDetector(
                             onTap: () async {
                               templateName = specificList[index]["title"];
-                              templateSearchName = specificList[index]["searchText"];
+                              templateSearchName =
+                                  specificList[index]["searchText"];
                               print("----------- $templateName");
                               reviewCount(context);
                               await imageDialog(

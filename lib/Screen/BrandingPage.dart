@@ -581,7 +581,7 @@ class _BrandingPageState extends State<BrandingPage> {
               child: rowText(
                 transparentVisitingCard,
                 viewAll,
-                () {
+                () async {
                   tabTap = 4;
                   Navigator.push(
                     context,
@@ -590,7 +590,7 @@ class _BrandingPageState extends State<BrandingPage> {
                       child: const Templates(scrollPosition: 320),
                     ),
                   );
-                  FirebaseAnalyticsService.instance.logEvent(
+                await  FirebaseAnalyticsService.instance.logEvent(
                       name: 'view_all',
                       parameters: {'name': 'Transparent Visiting Card'});
                 },
@@ -661,7 +661,7 @@ class _BrandingPageState extends State<BrandingPage> {
               child: rowText(
                 premiumVisitingCard,
                 viewAll,
-                () {
+                () async {
                   tabTap = 4;
                   Navigator.push(
                     context,
@@ -670,7 +670,7 @@ class _BrandingPageState extends State<BrandingPage> {
                       child: const Templates(scrollPosition: 320),
                     ),
                   );
-                  FirebaseAnalyticsService.instance.logEvent(
+                 await  FirebaseAnalyticsService.instance.logEvent(
                       name: 'view_all',
                       parameters: {'name': 'Premium Visiting Card'});
                 },
@@ -741,7 +741,7 @@ class _BrandingPageState extends State<BrandingPage> {
               child: rowText(
                 foldedVisitingCards,
                 viewAll,
-                () {
+                () async {
                   tabTap = 4;
                   Navigator.push(
                     context,
@@ -750,7 +750,7 @@ class _BrandingPageState extends State<BrandingPage> {
                       child: const Templates(scrollPosition: 320),
                     ),
                   );
-                  FirebaseAnalyticsService.instance.logEvent(
+                await  FirebaseAnalyticsService.instance.logEvent(
                       name: 'view_all',
                       parameters: {'name': 'Folded Visiting Cards'});
                 },
@@ -821,7 +821,7 @@ class _BrandingPageState extends State<BrandingPage> {
               child: rowText(
                 photographicVisitingCards,
                 viewAll,
-                () {
+                () async {
                   tabTap = 4;
                   Navigator.push(
                     context,
@@ -830,7 +830,7 @@ class _BrandingPageState extends State<BrandingPage> {
                       child: const Templates(scrollPosition: 320),
                     ),
                   );
-                  FirebaseAnalyticsService.instance.logEvent(
+                 await FirebaseAnalyticsService.instance.logEvent(
                       name: 'view_all',
                       parameters: {'name': 'Photographic Visiting Cards'});
                 },

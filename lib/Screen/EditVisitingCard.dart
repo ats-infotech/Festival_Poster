@@ -1,7 +1,6 @@
 import 'dart:io';
 import 'dart:math';
 import 'dart:typed_data';
-import 'dart:ui';
 import 'package:crop_image/crop_image.dart';
 import 'package:dropdown_button2/dropdown_button2.dart';
 import 'package:flex_color_picker/flex_color_picker.dart';
@@ -11,6 +10,7 @@ import 'package:flutter/rendering.dart';
 import 'package:flutter_drawing_board/flutter_drawing_board.dart';
 import 'package:flutter_drawing_board/helpers.dart';
 import 'package:flutter_drawing_board/paint_contents.dart';
+import 'package:gallery_saver_plus/gallery_saver.dart';
 // import 'package:gallery_saver/gallery_saver.dart';
 import 'package:get/get.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -22,9 +22,11 @@ import 'package:photo_frame/Contstant/EditableTextItem.dart';
 import 'package:photo_frame/Contstant/Strings.dart';
 import 'package:photo_frame/Screen/BottomNavBar.dart';
 import 'package:photo_frame/Screen/EditImageScreen.dart';
+import 'package:photo_frame/Screen/saveImageShow.dart';
 import 'package:photo_frame/Triangle.dart';
 import 'package:pretty_qr_code/pretty_qr_code.dart';
 import 'package:path_provider/path_provider.dart';
+import 'package:share_plus/share_plus.dart';
 // import 'package:share_extend/share_extend.dart';
 
 String duplicate = "";
@@ -369,9 +371,7 @@ class _EditVisitingCardState extends State<EditVisitingCard> {
                 opacity: a1.value,
                 child: Center(
                   child: isLoader
-                      ? const CircularProgressIndicator(
-                          color: kPrimeryColor,
-                        )
+                      ? commonLoader()
                       : Stack(
                           children: [
                             Container(
@@ -750,8 +750,8 @@ class _EditVisitingCardState extends State<EditVisitingCard> {
       }
 
       print("-------- image File ------ ${imageFile.path}");
-      // await GallerySaver.saveImage(imageFile.path,
-          // albumName: "Festival Poster");
+      await GallerySaver.saveImage(imageFile.path,
+          albumName: "Festival Poster");
       imageSaveSuccessDialog(
         context,
         () {
@@ -776,6 +776,8 @@ class _EditVisitingCardState extends State<EditVisitingCard> {
       final file = File('${tempDir.path}/$filename');
       await file.writeAsBytes(bytes);
       // await ShareExtend.share(file.path, 'Visiting Card');
+      XFile xFile = XFile(file.path);
+      await Share.shareXFiles([xFile], text: 'Visiting Card');
     } catch (e) {
       print("------------- Image Share Error ----------- $e");
     }
@@ -1951,11 +1953,7 @@ class _EditVisitingCardState extends State<EditVisitingCard> {
                     )
                   : Container(),
               isCardSaveLoader == true
-                  ? const Center(
-                      child: CircularProgressIndicator(
-                        color: kPrimeryColor,
-                      ),
-                    )
+                  ?commonLoader()
                   : Container(),
             ],
           ),

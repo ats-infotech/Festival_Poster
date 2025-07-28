@@ -8,6 +8,7 @@ import 'package:photo_frame/Contstant/AppColor.dart';
 import 'package:photo_frame/Contstant/CommonMethod.dart';
 import 'package:photo_frame/Contstant/Strings.dart';
 import 'package:photo_frame/Screen/BrandingPage.dart';
+import 'package:photo_frame/Screen/EditImageScreen.dart';
 import 'package:photo_frame/Screen/GradientText.dart';
 import 'package:photo_frame/Screen/HomePage.dart';
 import 'package:photo_frame/Screen/HomeSearchPage.dart';
@@ -388,23 +389,28 @@ class _BottomNavBarBarState extends State<BottomNavBarBar> {
                                                 showFeedBackDialog(context),
                                                 drawerContainer = 0,
                                               }
-                                            : index == 3
-                                                ? {
-                                                    Navigator.push(
-                                                      context,
-                                                      PageTransition(
-                                                        type: PageTransitionType
-                                                            .rightToLeftWithFade,
-                                                        child:
-                                                            const SaveImageShow(),
-                                                      ),
-                                                    ),
-                                                    scaffoldKey.currentState!
-                                                        .closeDrawer(),
-                                                    reviewCount(context),
-                                                    drawerContainer = 0,
-                                                  }
-                                                : index == 6
+                                            : 
+                                            // index == 3
+                                            //     ? {
+                                            //         editController
+                                            //             .selectedSaveTab
+                                            //             .value = 0,
+                                            //         Navigator.push(
+                                            //           context,
+                                            //           PageTransition(
+                                            //             type: PageTransitionType
+                                            //                 .rightToLeftWithFade,
+                                            //             child:
+                                            //                 const SaveImageShow(),
+                                            //           ),
+                                            //         ),
+                                            //         scaffoldKey.currentState!
+                                            //             .closeDrawer(),
+                                            //         reviewCount(context),
+                                            //         drawerContainer = 0,
+                                            //       }
+                                            //     : 
+                                                index == 6
                                                     ? {
                                                         Navigator.push(
                                                           context,

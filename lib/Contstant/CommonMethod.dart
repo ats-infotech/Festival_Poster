@@ -12,6 +12,7 @@ import 'package:flutter_image_compress/flutter_image_compress.dart';
 import 'package:get/get.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:intl/intl.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:photo_frame/Contstant/AppColor.dart';
@@ -22,6 +23,7 @@ import 'package:photo_frame/Screen/EditImageScreen.dart';
 import 'package:photo_frame/Screen/EditVisitingCard.dart';
 import 'package:photo_frame/Screen/HomePage.dart';
 import 'package:photo_frame/Screen/Templates.dart';
+import 'package:photo_frame/Screen/saveImageShow.dart';
 import 'package:photo_frame/WebScreen/EditImageScreenWeb.dart';
 import 'package:photo_frame/service/firebase_analytics_service.dart';
 import 'package:shimmer/shimmer.dart';
@@ -109,10 +111,10 @@ List drawerList = [
     "name": "Reviews",
     "icon": "assets/images/drawerReview.png",
   },
-  {
-    "name": "Saved Images",
-    "icon": "assets/images/drawerSaveImage.png",
-  },
+  // {
+  //   "name": "Saved Templates",
+  //   "icon": "assets/images/drawerSaveImage.png",
+  // },
   {
     "name": "Personal Info",
     "icon": "assets/images/personal_info.png",
@@ -146,9 +148,7 @@ imageDialog(BuildContext context, int index, {required String templateName}) {
               opacity: a1.value,
               child: Center(
                 child: isLoader
-                    ? const CircularProgressIndicator(
-                        color: kPrimeryColor,
-                      )
+                    ? commonLoader()
                     : Stack(
                         children: [
                           Container(
@@ -794,13 +794,24 @@ showFeedBackDialog(BuildContext context) {
                               ? InkWell(
                                   onTap: isStarTap
                                       ? () {
+                                          DateTime now =
+                                              DateTime.now().toLocal();
+                                          var dateTime =
+                                              DateFormat("dd-MM-yyyy hh:mm a")
+                                                  .format(now);
+                                          print(
+                                              "--------- Current Date Time ------------ ${dateTime}");
+
                                           setState(() {
                                             isSubmitButton = true;
 
                                             if (rating < 4) {
                                               FirebaseFirestore.instance
                                                   .collection('review')
-                                                  .add({"rating": rating + 1});
+                                                  .add({
+                                                "rating": rating + 1,
+                                                "date_time": dateTime,
+                                              });
                                             }
                                           });
                                         }
@@ -1023,7 +1034,7 @@ Future<void> reviewCount(BuildContext context) async {
 }
 
 // Image Save Success Dialog
-imageSaveSuccessDialog(BuildContext context, onTap) {
+imageSaveSuccessDialog(BuildContext context, onTap, {bool image = true}) {
   var w = MediaQuery.of(context).size.width / 100;
   showDialog(
     context: context,
@@ -1054,7 +1065,9 @@ imageSaveSuccessDialog(BuildContext context, onTap) {
                     margin: const EdgeInsets.symmetric(horizontal: 20),
                     width: double.infinity,
                     child: Text(
-                      imageSaveDescription,
+                      image == true
+                          ? imageSaveDescription
+                          : videoSaveDescription,
                       textAlign: TextAlign.center,
                       maxLines: 1,
                       style: GoogleFonts.poppins(
@@ -1156,9 +1169,7 @@ pickLogoDialog(BuildContext context) {
               opacity: a1.value,
               child: Center(
                 child: isLoader
-                    ? const CircularProgressIndicator(
-                        color: kPrimeryColor,
-                      )
+                    ? commonLoader()
                     : Stack(
                         children: [
                           Container(
@@ -3513,9 +3524,7 @@ void showSurveyDialog(BuildContext context) {
                 opacity: a1.value,
                 child: Center(
                   child: isLoader
-                      ? const CircularProgressIndicator(
-                          color: kPrimeryColor,
-                        )
+                      ? commonLoader()
                       : Stack(
                           children: [
                             Form(
@@ -3907,6 +3916,13 @@ void showSurveyDialog(BuildContext context) {
                                                       .setSurveyComplated(
                                                           isSurveyComplated:
                                                               true);
+                                                  DateTime now =
+                                                      DateTime.now().toLocal();
+                                                  var dateTime = DateFormat(
+                                                          "dd-MM-yyyy hh:mm a")
+                                                      .format(now);
+                                                  print(
+                                                      "--------- Current Date Time ------------ ${dateTime}");
 
                                                   FirebaseFirestore.instance
                                                       .collection('survey')
@@ -3941,6 +3957,7 @@ void showSurveyDialog(BuildContext context) {
                                                       'improvements':
                                                           txtDescription.text
                                                               .trim(),
+                                                      "date_time": dateTime,
                                                     },
                                                   );
 
@@ -4052,5 +4069,70 @@ void showSurveyDialog(BuildContext context) {
         ),
       );
     },
+  );
+}
+
+void showCommonSnackBar(BuildContext context, String message,
+    {Color backgroundColor = Colors.black,
+    Duration duration = const Duration(seconds: 2)}) {
+  ScaffoldMessenger.of(context).showSnackBar(
+    SnackBar(
+      content: Text(
+        message,
+        style: const TextStyle(color: Colors.white),
+      ),
+      backgroundColor: backgroundColor,
+      duration: duration,
+      behavior: SnackBarBehavior.floating,
+      margin: const EdgeInsets.all(16),
+    ),
+  );
+}
+
+Widget commonLoader() {
+  return const Center(
+    child: CircularProgressIndicator(
+      color: kPrimeryColor,
+    ),
+  );
+}
+
+Widget commonBackArrow() {
+  return const Icon(
+    Icons.arrow_back_rounded,
+    color: whiteColor,
+  );
+}
+
+Widget saveLoader() {
+  return Container(
+    height: double.infinity,
+    width: double.infinity,
+    color: transparentColor,
+    child: Center(
+      child: Container(
+        decoration: BoxDecoration(
+            color: blackColor.withOpacity(0.7),
+            borderRadius: BorderRadius.circular(10)),
+        child: Padding(
+          padding: const EdgeInsets.all(16.0),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              CircularProgressIndicator(
+                color: whiteColor,
+              ),
+              SizedBox(
+                height: 10,
+              ),
+              Text(
+                "Please wait..",
+                style: TextStyle(color: whiteColor, fontSize: 15),
+              )
+            ],
+          ),
+        ),
+      ),
+    ),
   );
 }
